@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "koa": "^2.2.0",
+    "koa-body": "^2.0.1",
     "koa-json": "^2.0.2",
     "koa-orm": "^2.0.0",
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0",
+    "mysql": "^2.13.0",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1"
   },
