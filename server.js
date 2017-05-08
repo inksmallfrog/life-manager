@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-07 18:50:12
+* @Last Modified time: 2017-05-08 10:03:25
 */
 
 'use strict';
@@ -17,13 +17,40 @@ const dbConfig = require('./config/dev.db.js');
 const orm = ORM([dbConfig]);
 const db = orm.database('lifeManager');
 
-app.use(koaBody());
+const webpack = require('webpack'),
+      webpackConfig = require('./build/webpack.dev.conf'),
+      compiler = webpack(webpackConfig),
+      webpackDevMiddleware = require('koa-webpack-dev-middleware'),
+      webpackHotMiddleware = require('koa-webpack-hot-middleware');
+app.use(webpackDevMiddleware(compiler,  webpackConfig.devServer));
+app.use(webpackHotMiddleware(compiler));
+
+const keyGrip = require('keygrip');
+app.keys = new keyGrip(['the best programmer in the world', 'to the one i love'], 'sha256');
+
+const session = require('koa-session');
+const CONFIG = {
+  key: app.keys, /** (string) cookie key (default is koa:sess) */
+  maxAge: 7200000, /** (number) maxAge in ms (default is 1 days) */
+  overwrite: true, /** (boolean) can overwrite or not (default true) */
+  httpOnly: true, /** (boolean) httpOnly or not (default true) */
+  signed: true, /** (boolean) signed or not (default true) */
+};
+app.use(session(CONFIG, app));
+
+app.use(koaBody({
+  multipart: true
+}));
 app.use(Json());
 app.use(orm.middleware);
+
+app.use(Static(__dirname));
+//const homeRoute = require('./route/home');
+//app.use(homeRoute.routes());
 const userRoute = require('./route/user');
 app.use(userRoute.routes());
 
-db.sync({force:true,  logging: console.log}).then(()=>{
+db.sync({force:true}).then(()=>{
   console.log('数据库初始化完成');
   app.listen(3000);
   console.log('listening on port 3000');
