@@ -12,15 +12,15 @@
           <span class="rightSwitcherArrow" :class="{active: !isLoggin}"></span>
         </button>
       </header>
-      <form id="logginForm" @submit="loggin" :class="{active: isLoggin}">
-        <inputGroup name="email" placeholder="邮箱" v-model="logginEmail" :error="logginEmailError" :change="handleLogginEmail"></inputGroup>
-        <inputGroup name="psd" placeholder="密码" v-model="logginPsd" :error="logginPsdError" :change="handleLogginPsd"></inputGroup>
-        <button type="submit">登陆</button>
+      <form action="/users?ask=loggin" id="logginForm" @submit.prevent="loggin" :class="{active: isLoggin}">
+        <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="logginEmail" :error="logginEmailError":input="clearLogginEmailError" :change="handleLogginEmail"></inputGroup>
+        <inputGroup name="psd" :type="logginPsdType" placeholder="密码" :icon="logginView" :iconClick="toggleLogginView" :switchView="true" v-model="logginPsd" :error="logginPsdError" :input="clearLogginPsdError" :change="handleLogginPsd"></inputGroup>
+        <button type="submit" class="submitBtn">登陆</button>
       </form>
-      <form id="registForm" @submit="regist" :class="{active: !isLoggin}">
-        <inputGroup name="email" placeholder="邮箱" v-model="registEmail" :error="registEmailError" :change="handleRegistEmail"></inputGroup>
-        <inputGroup name="psd" placeholder="密码" v-model="registPsd" :error="registPsdError" :change="handleRegistPsd"></inputGroup>
-        <button type="submit">注册</button>
+      <form action="/users?ask=regist" id="registForm" @submit.prevent="regist" :class="{active: !isLoggin}">
+        <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="registEmail" :error="registEmailError" :input="clearRegistEmailError" :change="handleRegistEmail"></inputGroup>
+        <inputGroup name="psd" :type="registPsdType" placeholder="密码" :icon="registView" :iconClick="toggleRegistView" :switchView="true" v-model="registPsd" :error="registPsdError" :input="clearRegistPsdError" :change="handleRegistPsd"></inputGroup>
+        <button type="submit" class="submitBtn">注册</button>
       </form>
     </div>
   </div>
@@ -33,13 +33,19 @@ export default {
   components: {
     inputGroup: InputGroup
   },
+  props:{
+    pIsLoggin: Boolean,
+    default: true
+  },
   data(){
     return {
-      isLoggin: true,
+      isLoggin: this.pIsLoggin,
       logginEmail: '',
       logginPsd: '',
       registEmail: '',
-      registPsd: ''
+      registPsd: '',
+      logginPsdType: 'password',
+      registPsdType: 'password'
     };
   },
   computed: {
@@ -54,6 +60,12 @@ export default {
     },
     registPsdError(){
       return this.$store.state.registPsdError;
+    },
+    logginView(){
+      return this.logginPsdType == 'password' ? 'icon-unviewable': 'icon-viewable';
+    },
+    registView(){
+      return this.registPsdType == 'password' ? 'icon-unviewable': 'icon-viewable';
     }
   },
   methods: {
@@ -64,7 +76,6 @@ export default {
     },
     boxClick(e){
       e.stopPropagation();
-      e.preventDefault();
     },
     toLoggin(e){
       this.isLoggin = true;
@@ -73,43 +84,32 @@ export default {
       this.isLoggin = false;
     },
     loggin(e){
-      if(this.logginEmailError()){
+      if(this.logginEmailError){
 //        document.getElementById('logginEmail').focus();
-        e.stopPropagation();
-        e.preventDefault();
         return;
       }
-      if(this.logginPsdError()){
+      if(this.logginPsdError){
 //        document.getElementById('logginPsd').focus();
-        e.stopPropagation();
-        e.preventDefault();
         return;
       }
       else{
         let form = new FormData(e.target);
         this.$store.dispatch('LOGGIN', form);
-        e.stopPropagation();
-        e.preventDefault();
       }
     },
     regist(e){
-      if(this.registEmailError()){
+      console.log('sss');
+      if(this.registEmailError){
         //document.getElementById('registEmail').focus();
-        e.stopPropagation();
-        e.preventDefault();
         return;
       }
-      if(this.registPsdError()){
+      if(this.registPsdError){
         //document.getElementById('registPsd').focus();
-        e.stopPropagation();
-        e.preventDefault();
         return;
       }
       else{
         let form = new FormData(e.target);
         this.$store.dispatch('REGISTER', form);
-        e.stopPropagation();
-        e.preventDefault();
       }
     },
     handleLogginEmail(e){
@@ -126,6 +126,9 @@ export default {
         }
       }
     },
+    clearLogginEmailError(e){
+      this.$store.commit('setLogginEmailError', '');
+    },
     handleLogginPsd(e){
       const psd = e.target.value;
       if(!psd){
@@ -140,6 +143,9 @@ export default {
         }
       }
     },
+    clearLogginPsdError(e){
+      this.$store.commit('setLogginPsdError', '');
+    },
     handleRegistEmail(e){
       const email = e.target.value;
       if(!email){
@@ -147,12 +153,15 @@ export default {
       }
       else{
         if(!/[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/.test(email)){
-          this.$store.commit('setRegistEmailError', '请检查邮箱是否正确');
+          this.$store.commit('setRegistEmailError', '请检查邮箱格式是否正确');
         }
         else{
           this.$store.dispatch('CHECK_EMAIL_CONFLICT', email);
         }
       }
+    },
+    clearRegistEmailError(e){
+      this.$store.commit('setRegistEmailError', '')
     },
     handleRegistPsd(e){
       const psd = e.target.value;
@@ -167,6 +176,15 @@ export default {
           this.$store.commit('setRegistPsdError', '');
         }
       }
+    },
+    clearRegistPsdError(e){
+      this.$store.commit('setRegistPsdError', '');
+    },
+    toggleLogginView(){
+      this.logginPsdType = this.logginPsdType == 'password' ? 'text' : 'password';
+    },
+    toggleRegistView(){
+      this.registPsdType = this.registPsdType == 'password' ? 'text' : 'password';
     }
   }
 };
@@ -184,17 +202,16 @@ export default {
   }
   .box{
     position: relative;
-
     margin: auto;
     width: 40%;
-    height: 40%;
-    min-height: 300px;
+    height: 350px;
     background: white;
     border-radius: 2px;
     overflow-x: hidden;
   }
   header{
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    height: 90px;
   }
   .switcher{
     position: relative;
@@ -202,7 +219,9 @@ export default {
   }
   .switcher button{
     position: absolute;
-    width: 20%;
+    font-size: 1.8rem;
+    width: 30%;
+    height: 100%;
     background: #eee;
     border: none;
     outline: none;
@@ -217,22 +236,25 @@ export default {
   }
   .leftSwitcher.active,
   .rightSwitcher.active{
-    width: 80%;
+    width: 70%;
     background: red;
+    color: white;
   }
   .leftSwitcherArrow.active{
-    right: -20px;
-    border-top: transparent 10px solid;
-    border-bottom: transparent 10px solid;
-    border-left: red 10px solid;
-    border-right: transparent 10px solid;
+    top: 0;
+    right: -90px;
+    border-top: transparent 45px solid;
+    border-bottom: transparent 45px solid;
+    border-left: red 45px solid;
+    border-right: transparent 45px solid;
   }
   .rightSwitcherArrow.active{
-    left: -20px;
-    border-top: transparent 10px solid;
-    border-bottom: transparent 10px solid;
-    border-left: transparent 10px solid;
-    border-right: red 10px solid;
+    top: 0;
+    left: -90px;
+    border-top: transparent 45px solid;
+    border-bottom: transparent 45px solid;
+    border-right: red 45px solid;
+    border-left: transparent 45px solid;
   }
   .leftSwitcherArrow,
   .rightSwitcherArrow{
@@ -243,6 +265,7 @@ export default {
     border-left: #eee 0px solid;
     border-right: #eee 0px solid;
     transition: right .5s, left .5s;
+    pointer-events: none;
   }
   form{
     position: absolute;
@@ -261,5 +284,14 @@ export default {
   }
   .active#registForm{
     right: 0;
+  }
+  .submitBtn{
+    margin-top: 20px;
+    cursor: pointer;
+    padding: 5px 30px;
+    font-size: 1.5rem;
+    background: #ddd;
+    border: none;
+    outline: none;
   }
 </style>

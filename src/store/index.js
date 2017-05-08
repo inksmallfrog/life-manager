@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-08 11:37:23
+* @Last Modified time: 2017-05-08 16:08:48
 */
 
 'use strict';
@@ -68,12 +68,12 @@ export default new Vuex.Store({
           switch(json.param){
             case 'email':
               if(json.type == 'nomatch'){
-                commit('setEmailError', '这个邮箱还没有注册');
+                commit('setLogginEmailError', '这个邮箱还没有注册');
               }
               break;
             case 'psd':
               if(json.type == 'nomatch'){
-                commit('setEmailError', '密码错误');
+                commit('setLogginPsdError', '密码错误');
               }
               break;
             default:
@@ -94,9 +94,9 @@ export default new Vuex.Store({
         return res.json();
       }).then((json)=>{
         if(!json.hasError && json.exist){
-          commit('setEmailError', '这个邮箱已经注册了');
+          commit('setRegistEmailError', '这个邮箱已经注册了');
         }else if(!json.hasError && !json.exist){
-          commit('setEmailError', '');
+          commit('setRegistEmailError', '');
         }else{
 
         }
@@ -105,7 +105,7 @@ export default new Vuex.Store({
       })
     },
     REGISTER({commit}, form){
-      fetch('/users?ask=register', {
+      fetch('/users?ask=regist', {
         method: 'POST',
         body: form
       }).then((res)=>{

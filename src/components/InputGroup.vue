@@ -1,8 +1,12 @@
 <template>
   <div class="inputGroup">
-    <input type="text" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="handleInput" @change="change">
-    <span :class="[icon, {hasError: error, isOk: ok}]"></span>
-    <p class="error" v-if="error">{{ error }}</p>
+    <span :class="['before', 'iconfont', icon, {'clickable': switchView}]" @click="iconClick"></span>
+    <input type="text" :type="type" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="updateValue($event.target.value)" @change="handleChange">
+    <span :class="['after', 'iconfont', {'icon-error': error, 'icon-ok': ok}]"></span>
+    <div class="errorBox" v-if="error">
+      <span class="errorArrow"></span>
+      <p class="error">{{ error }}</p>
+    </div>
   </div>
 </template>
 
@@ -13,6 +17,10 @@
       name: {
         type: String,
         required: true
+      },
+      type:{
+        type: String,
+        default: 'text'
       },
       value: {
         type: String,
@@ -30,41 +38,115 @@
         type: String,
         default: ''
       },
+      switchView: {
+        type: Boolean,
+        default: false
+      },
+      iconClick:{
+        type: Function,
+        default: (e)=>{e.stopPropagation(); e.preventDefault();}
+      },
+      input: {
+        type: Function,
+        default: (e)=>{e.stopPropagation(); e.preventDefault();}
+      },
       change: {
         type: Function,
         default: (e)=>{e.stopPropagation(); e.preventDefault();}
       }
     },
+    data(){
+      return{
+        localValue: ''
+      }
+    },
     computed:{
       ok(){
-        return this.value && !this.error;
+        return this.localValue && !this.error;
       }
     },
     methods: {
-      handleInput(){
-        this.$emit('input');
+      updateValue(value){
+        this.$emit('input', value);
+        if(this.localValue){
+          this.localValue = '';
+        }
+        this.input();
+      },
+      handleChange(event){
+        this.localValue = this.$el.querySelector('input').value;
+        this.change(event);
       }
     }
   }
 </script>
 
 <style scoped>
+  div{
+    position: relative;
+    width: 40%;
+    margin: auto;
+  }
+  .before{
+    position: absolute;
+    top: 0;
+    left: -20px;
+  }
+  .before.clickable{
+    cursor: pointer;
+  }
   input{
     display: block;
-    width: 40%;
+    width: 100%;
     margin: 10px auto;
+    padding: 0 5px;
+    font-size: 1.2rem;
     border: none;
     border-bottom: #aaa 1px solid;
     outline: none;
-    transition: border .5s;
+    transition: border .5s, box-shadow .5s;
   }
   input:focus{
     outline: none;
-    border-bottom-color: #666;
+    box-shadow: 0px 1px 1px rgba(100, 100, 100, 0.4);
+  }
+  input.hasError:focus{
+    box-shadow: 0px 1px 1px rgba(255, 0, 0, 0.4);
+  }
+  input.isOk:focus{
+    box-shadow: 0px 1px 1px rgba(0, 255, 0, 0.4);
+  }
+  .after{
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .after.icon-error{
+    color: red;
+  }
+  .after.icon-ok{
+    color: green;
+  }
+  .errorBox{
+    position: relative;
+    top: 5px;
+    background: red;
+    color: white;
+    width: 100%;
+    border-radius: 3px;
+  }
+  .errorArrow{
+    position: absolute;
+    top: -20px;
+    right: 0;
+    border-left: transparent 10px solid;
+    border-right: transparent 10px solid;
+    border-top: transparent 10px solid;
+    border-bottom: red 10px solid;
   }
   .error{
-    color: red;
     margin: 0;
     margin-top: -10px;
+    margin-bottom: 20px;
   }
 </style>

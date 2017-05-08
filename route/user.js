@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-08 10:42:46
+* @Last Modified time: 2017-05-08 16:10:09
 */
 
 'use strict';
@@ -144,36 +144,41 @@ userRouter.post('/', async (ctx, next)=>{
         email: email,
       })
         .then((user)=>{
-          if(user.psd != psd){
+          if(!user){
+            ctx.body = {
+              hasError: true,
+              type: 'nomatch',
+              param: "email"
+            }
+          }
+          else if(user.psd != psd){
             ctx.body = {
               hasError: true,
               type: 'nomatch',
               param: 'psd'
             }
           }
-          ctx.body = {
-            hasError: false,
-            user: {
-              'id': user.id,
-              'email': user.email,
-              'name': user.name,
-              'favicon': user.favicon,
-              'des': user.des
-            }
-          };
+          else{
+            ctx.body = {
+              hasError: false,
+              user: {
+                'id': user.id,
+                'email': user.email,
+                'name': user.name,
+                'favicon': user.favicon,
+                'des': user.des
+              }
+            };
+          }
         })
         .catch((error)=>{
-          ctx.body = {
-            hasError: true,
-            type: 'nomatch',
-            param: "email"
-          }
+
         });
       break;
     }
     case 'emailexists':
     {
-      let { email } = ctx.request.body.fields,
+      let { email } = ctx.request.body,
           emailRes = handleEmail(email);
       if(emailRes.hasError){
         ctx.body = emailRes
@@ -183,14 +188,22 @@ userRouter.post('/', async (ctx, next)=>{
           email: email
         }
       }).then((user)=>{
-        ctx.body = {
-          hasError: false,
-          exist: true
+        if(!user){
+          ctx.body = {
+            hasError: false,
+            exist: false
+          }
+        }
+        else{
+          ctx.body = {
+            hasError: false,
+            exist: true
+          }
         }
       }).catch((err)=>{
         ctx.body = {
-          hasError: false,
-          exist: false
+          hasError: true,
+          info: err
         }
       })
       break;
