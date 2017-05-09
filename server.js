@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-08 10:03:25
+* @Last Modified time: 2017-05-09 11:38:31
 */
 
 'use strict';
@@ -30,7 +30,7 @@ app.keys = new keyGrip(['the best programmer in the world', 'to the one i love']
 
 const session = require('koa-session');
 const CONFIG = {
-  key: app.keys, /** (string) cookie key (default is koa:sess) */
+  key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
   maxAge: 7200000, /** (number) maxAge in ms (default is 1 days) */
   overwrite: true, /** (boolean) can overwrite or not (default true) */
   httpOnly: true, /** (boolean) httpOnly or not (default true) */
@@ -45,10 +45,12 @@ app.use(Json());
 app.use(orm.middleware);
 
 app.use(Static(__dirname));
-//const homeRoute = require('./route/home');
-//app.use(homeRoute.routes());
 const userRoute = require('./route/user');
 app.use(userRoute.routes());
+const categoryRoute = require('./route/category');
+app.use(categoryRoute.routes());
+const passageRoute = require('./route/passage');
+app.use(passageRoute.routes());
 
 db.sync({force:true}).then(()=>{
   console.log('数据库初始化完成');

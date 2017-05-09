@@ -31,3 +31,8 @@
 
 .icon-unviewable:before { content: "\e616"; }
 
+.icon-picture:before { content: "\e64e"; }
+
+.icon-save:before { content: "\e66a"; }
+
+.icon-submit:before { content: "\e6db"; }

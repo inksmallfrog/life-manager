@@ -11,6 +11,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "animate.css": "^3.5.2",
     "keygrip": "^1.0.1",
     "koa": "^2.2.0",
     "koa-body": "^2.0.1",
@@ -19,10 +20,12 @@
     "koa-router": "^7.1.1",
     "koa-session": "^5.0.0",
     "koa-static": "^3.0.0",
+    "marked": "^0.3.6",
     "mysql": "^2.13.0",
     "promise-polyfill": "^6.0.2",
     "vue": "^2.2.6",
     "vue-router": "^2.3.1",
+    "vue-select": "^2.2.0",
     "vuex": "^2.3.1",
     "whatwg-fetch": "^2.0.3"
   },

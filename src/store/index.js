@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-08 16:08:48
+* @Last Modified time: 2017-05-09 11:43:11
 */
 
 'use strict';
@@ -13,6 +13,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state:{
     user: null,
+    passages: [],
+    passageCategories: [],
 
     logginEmailError: '',
     logginPsdError: '',
@@ -22,6 +24,12 @@ export default new Vuex.Store({
   mutations: {
     loggin(state, user){
       state.user = user;
+    },
+    getPassageCategories(state, categories){
+      state.passageCategories = categories;
+    },
+    getPassages(state, passages){
+      state.passages = passages;
     },
     setLogginEmailError(state, error){
       state.logginEmailError = error;
@@ -42,6 +50,7 @@ export default new Vuex.Store({
   actions: {
     CHECK_LOGGED({commit}){
       fetch('/users?ask=checkLogged', {
+        credentials: 'include',
         method: 'GET'
       }).then((res)=>{
         return res.json();
@@ -57,6 +66,7 @@ export default new Vuex.Store({
     },
     LOGGIN({commit}, form){
       fetch('/users?ask=loggin', {
+        credentials: 'include',
         method: 'POST',
         body: form
       }).then((res)=>{
@@ -86,6 +96,7 @@ export default new Vuex.Store({
     },
     CHECK_EMAIL_CONFLICT({commit}, email){
       fetch('/users?ask=emailexists', {
+        credentials: 'include',
         method: 'POST',
         body: {
           email: email
@@ -106,6 +117,7 @@ export default new Vuex.Store({
     },
     REGISTER({commit}, form){
       fetch('/users?ask=regist', {
+        credentials: 'include',
         method: 'POST',
         body: form
       }).then((res)=>{
@@ -113,6 +125,38 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError && json.user){
           commit('loggin', json.user);
+        }else{
+          //do nothing
+        }
+      }).catch((err)=>{
+
+      })
+    },
+    FETCH_PASSAGECATEGORIES({commit}){
+      fetch('/categories?type=passage', {
+        credentials: 'include',
+        method: 'GET',
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError && json.categories){
+          commit('getPassageCategories', json.categories);
+        }else{
+          //do nothing
+        }
+      }).catch((err)=>{
+
+      })
+    },
+    FETCH_PASSAGES({commit}){
+      fetch('/passages', {
+        credentials: 'include',
+        method: 'GET',
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError && json.passages){
+          commit('getPassages', json.passages);
         }else{
           //do nothing
         }

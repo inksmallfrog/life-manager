@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-08 16:10:09
+* @Last Modified time: 2017-05-09 17:17:56
 */
 
 'use strict';
@@ -16,41 +16,47 @@ userRouter.get('/', async (ctx, next)=>{
   const ask = ctx.request.query.ask;
   switch(ask){
     case 'checkLogged':
-      //检查session/cookie登陆
-      let userId = ctx.session.userId;
-      if(!userId){
+      let userId = -1,
+          fromSession = false;
+      //检查session登陆
+      if(ctx.session){
+        userId = ctx.session.userId;
+        fromSession = true;
+      }
+      //检查cookie登陆
+      if(!userId && ctx.cookies){
         userId = ctx.cookies.get('userId', {signed: true});
-        if(!userId){
-          ctx.body = {
-            hasError: false,
-            user: null
-          }
+        fromSession = false;
+      }
+      if(!userId){
+        ctx.body = {
+          hasError: false,
+          user: null
         }
-        else{
+      }
+      else{
+        if(!fromSession){
           //建立session连接
           ctx.session.userId = userId;
-          //获取用户信息
-          const { User } = ctx.orm('lifeManager');
-          return User.find(userId)
-                  .then((user)=>{
-                    ctx.body = {
-                      hasError: false,
-                      'user': {
-                        'id': user.id,
-                        'email': user.email,
-                        'name': user.name,
-                        'favicon': user.favicon,
-                        'des': user.des
-                      }
-                    };
-                  })
-                  .catch((error)=>{
-                    ctx.body = {
-                      hasError: true,
-                      info: error
-                    }
-                  });
         }
+        const { User } = ctx.orm('lifeManager');
+        return User.findById(userId).then((user)=>{
+                  ctx.body = {
+                    hasError: false,
+                    'user': {
+                      'id': user.id,
+                      'email': user.email,
+                      'name': user.name,
+                      'favicon': user.favicon,
+                      'des': user.des
+                    }
+                  };
+                }).catch((error)=>{
+                  ctx.body = {
+                    hasError: true,
+                    info: error
+                  }
+                });
       }
       break;
     default:
@@ -108,8 +114,12 @@ userRouter.post('/', async (ctx, next)=>{
       return User.create({
         email: email,
         psd: psd
-      })
-        .then((user)=>{
+      }).then((user)=>{
+          let expires = new Date();
+          expires.setTime(expires.getTime() + 7 * 24 * 3600 * 1000);
+          ctx.cookies.set('userId', user.id, {signed: true, expires: expires, httpOnly: true});
+          ctx.session.userId = user.id;
+          console.log(ctx.session.userId);
           ctx.body = {
             hasError: false,
             'user': {
@@ -120,8 +130,7 @@ userRouter.post('/', async (ctx, next)=>{
               'des': user.des
             }
           };
-        })
-        .catch((error)=>{
+        }).catch((error)=>{
           ctx.body = {
             hasError: true,
             info: error
@@ -159,6 +168,10 @@ userRouter.post('/', async (ctx, next)=>{
             }
           }
           else{
+            let expires = new Date();
+            expires.setTime(expires.getTime() + 7 * 24 * 3600 * 1000);
+            ctx.cookies.set('userId', user.id, {signed: true, expires: expires, httpOnly: true});
+            ctx.session.userId = user.id;
             ctx.body = {
               hasError: false,
               user: {

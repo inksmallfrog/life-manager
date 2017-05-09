@@ -8,15 +8,39 @@
         </p>
       </figcaption>
     </figure>
-    <ul class="itemlist">
+    <div class="logged" v-if="logged">
+      <ul class="itemlist">
+        <li class="item">
+          <router-link to="/passages" class="icon">
+            <span class="iconfont icon-passage"></span>
+          </router-link>
+          <div class="descript">心情日记</div>
+        </li>
+        <li class="item">
+          <router-link to="/todos" class="icon">
+            <span class="iconfont icon-todo"></span>
+          </router-link>
+          <div class="descript">人生计划</div>
+        </li>
         <li class="item">
           <div class="icon">
+            <span class="iconfont icon-more"></span>
+          </div>
+          <div class="descript">更多期待</div>
+        </li>
+      </ul>
+      logged
+    </div>
+    <div class="unlogged" v-else>
+      <ul class="itemlist">
+        <li class="item">
+          <div to="/passages" class="icon">
             <span class="iconfont icon-passage"></span>
           </div>
           <div class="descript">心情日记</div>
         </li>
         <li class="item">
-          <div class="icon">
+          <div to="/todos" class="icon">
             <span class="iconfont icon-todo"></span>
           </div>
           <div class="descript">人生计划</div>
@@ -28,10 +52,6 @@
           <div class="descript">更多期待</div>
         </li>
       </ul>
-    <div class="logged" v-if="logged">
-      logged
-    </div>
-    <div class="unlogged" v-else>
       <p class="status">您还没有登陆</p>
       <div class="operations">
         <button class="loggin" @click="showUserModalLog">现在登陆</button>
@@ -138,8 +158,10 @@ figcaption{
   width: 4rem;
   height: 4rem;
   border-radius: 100%;
-  background: #eee;
+  background: #fff;
   cursor: pointer;
+  color: black;
+  text-decoration: none;
 }
 .icon .iconfont{
   font-size: 2rem !important;
