@@ -1,6 +1,7 @@
 import './lib/polyfill.js';
 
 import './fonts/iconfont.css';
+import './styles/monokai-sublime.css';
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.

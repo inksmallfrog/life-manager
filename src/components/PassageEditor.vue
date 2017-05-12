@@ -1,6 +1,8 @@
 <template>
   <div class="newPassage">
-    <form action="/passages" method="POST" :class="{withView: viewMode}" @submit="handleSubmit">
+    <form action="/passages" method="POST" :class="{withView: viewMode}"
+        @submit="handleSubmit"
+        @keypress="noSubmit">
       <input name="title" v-model="title" type="text" placeholder="标题">
       <div class="operationsGroup">
         <v-select prefix="分类：" label="title" :value="category" :options="categories" :taggable="true" :onChange="onChange"></v-select>
@@ -12,9 +14,9 @@
         </div>
       </div>
       <p v-if="dropUploading">{{ uploadingState }}</p>
-      <textarea v-model="content" ref="editor" @blur="saveEditorPos" @drop="dropPics"></textarea>
+      <textarea v-model="content" ref="editor" @blur="saveEditorPos" @drop="dropPics" @scroll="scroll"></textarea>
     </form>
-    <passage-view class="preview" v-if="viewMode" :title="title" :category="category.title" :content="content"></passage-view>
+    <passage-view ref="preview" class="preview" v-if="viewMode" :title="title" :category="category.title" :content="content" :scroll="scroll"></passage-view>
     <picture-modal v-if="picUpload" v-on:close="closeModal"></picture-modal>
   </div>
 </template>
@@ -44,6 +46,7 @@ export default {
       editorPos: 0,
       dropUploading: false,
       uploadingState: '',
+      scrollDirty: false
     }
   },
   computed: {
@@ -60,6 +63,11 @@ export default {
         value.id = -1;
       }
       this.category = value;
+    },
+    noSubmit(e){
+      if(e.keyCode == 13){
+        e.preventDefault();
+      }
     },
     closeModal(){
       this.picUpload = false;
@@ -120,6 +128,23 @@ export default {
               }
             })
         }
+      }
+    },
+    scroll(e){
+      this.scrollDirty = !this.scrollDirty;
+      if(this.scrollDirty){
+        let node = e.target,
+            pos = node.scrollTop,
+            scrollBottom = node.scrollHeight - node.offsetHeight,
+            ratio = pos / scrollBottom,
+            another;
+        if(node != this.$refs.editor){
+          another = this.$refs.editor;
+        }else{
+          another = this.$refs.preview.$el;
+        }
+        let target = (another.scrollHeight - another.offsetHeight) * ratio;
+        another.scrollTop = target;
       }
     },
     saveScript(e){
@@ -190,7 +215,8 @@ export default {
   .newPassage{
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    overflow-y: hidden;
   }
   form{
     width: 80%;
@@ -204,6 +230,7 @@ export default {
   input{
     width: 100%;
     height: 36px;
+    padding: 0 .5rem;
   }
   .operationsGroup{
 
@@ -234,19 +261,19 @@ export default {
   }
   textarea{
     width: 100% !important;
-    height: 100% !important;
+    box-sizing: border-box;
+    height: calc(100% - 72px) !important;
     margin-right: 2%;
     resize: none;
+    font-size: 1.2rem;
+    padding: .5rem;
   }
-</style>
-<style type="text/css">
   .preview{
     text-align: left;
     width: 50%;
+    height: 100%;
     padding-left: 1%;
     border-left: #fff 1px solid;
-  }
-  .preview ol{
-    list-style-position: inside;
+    overflow-y: auto;
   }
 </style>

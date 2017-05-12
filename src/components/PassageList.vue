@@ -15,7 +15,7 @@
         <button @click="deletePassage(passage.id)" v-if="!isVisitMode">delete</button>
       </li>
     </ul>
-    <p v-else>您还没有写过日记呢～</p>
+    <p v-else>这里空空如也～～</p>
   </div>
 </template>
 

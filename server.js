@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-12 11:18:37
+* @Last Modified time: 2017-05-12 19:03:02
 */
 
 'use strict';
@@ -52,7 +52,7 @@ app.use(commentRoute.routes());
 const pictureRoute = require('./route/picture');
 app.use(pictureRoute.routes());
 
-db.sync({force:true}).then(()=>{
+db.sync().then(()=>{
   console.log('数据库初始化完成');
   app.listen(3000);
   console.log('listening on port 3000');

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-09 09:33:14
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-12 12:52:33
+* @Last Modified time: 2017-05-12 19:04:14
 */
 
 'use strict';
@@ -70,6 +70,11 @@ passageRouter.get('/:id', (ctx, next)=>{
       },
       {
         model: Comment,
+        include:[{
+          model: User,
+          attributes: ['name', 'favicon']
+        }],
+        attributes: ['content', 'createdAt'],
         order: [
           ['createdAt', 'DESC']
         ]

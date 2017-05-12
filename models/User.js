@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:59:52
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-10 09:04:16
+* @Last Modified time: 2017-05-12 18:56:15
 */
 
 'use strict';
@@ -29,11 +29,12 @@ module.exports = (sequelize, types)=>{
     },
     favicon:{
       type: types.STRING(80),
-      defaultValue: '/favicons/default.jpg'
+      defaultValue: '/public/favicons/default.jpg'
     },
     des: {
       type: types.STRING(140),
-      allowNull: true
+      allowNull: true,
+      defaultValue: '生活管家，感谢有你～'
     }
   }, {
     tableName: 'appUser'

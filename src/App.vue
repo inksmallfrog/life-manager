@@ -23,7 +23,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   background: #f3f8f1;
-  height: 100vh;
+  min-height: 100vh;
 }
 .fade-enter-active,
 .fade-leave-active{

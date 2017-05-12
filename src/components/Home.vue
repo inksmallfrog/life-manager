@@ -8,7 +8,7 @@
         </p>
       </figcaption>
     </figure>
-    <div class="logged" v-if="logged">
+    <div class="logged" v-if="user">
       <ul class="itemlist">
         <li class="item">
           <router-link to="/passages" class="icon">
@@ -29,7 +29,13 @@
           <div class="descript">更多期待</div>
         </li>
       </ul>
-      logged
+      <div class="userInfo">
+        <img :src="user.favicon" alt="">
+        <div class="userText">
+          <p>{{ user.name }}</p>
+          <p>{{ user.des }}</p>
+        </div>
+      </div>
     </div>
     <div class="unlogged" v-else>
       <ul class="itemlist">
@@ -52,7 +58,7 @@
           <div class="descript">更多期待</div>
         </li>
       </ul>
-      <p class="status">您还没有登陆</p>
+      <p class="status">你的人生需要来一点管家么？</p>
       <div class="operations">
         <button class="loggin" @click="showUserModalLog">现在登陆</button>
         <button class="regist" @click="showUserModalReg">马上注册</button>
@@ -77,7 +83,7 @@ export default {
     }
   },
   computed: {
-    logged(){
+    user(){
       return this.$store.state.user
     }
   },
@@ -107,7 +113,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .home{
-  height: 100%;
+  height: 100vh;
 }
 figure{
   position: relative;
@@ -192,10 +198,38 @@ figcaption{
   outline: none;
   cursor: pointer;
 }
-.loggin{
-  background: #5c9;
+.unlogged{
+  & .status{
+    text-align: center;
+  }
+  & .loggin{
+    background: #5c9;
+  }
+  & .regist{
+    background: #f86;
+  }
 }
-.regist{
-  background: #f86;
+
+
+.logged{
+  & .userInfo{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+  }
+  & .userInfo img{
+    border-radius: 100%;
+    width: 100px;
+    height: 100px;
+    margin-right: 100px
+  }
+  & .userText{
+    vertical-align: middle;
+  }
+  & .userText p:first-child{
+    margin-top: 1rem;
+  }
 }
+
 </style>
