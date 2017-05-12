@@ -1,36 +1,80 @@
 <template>
-  <div>
-    <router-link to="/new/passage">新文章</router-link>
-    <button>全部</button>
-    <button>已发布</button>
-    <button>草稿</button>
-    <ul v-if="passages.length">
-      <li v-for="passage in passages">
-        <p>{{ passage.category.title }}</p>
-        <p>{{ passage.createdAt }}</p>
-        <router-link :to="passage.src">{{ passage.title }}</router-link>
+  <div class="passage">
+    <passage-view :title="title", :category="category.title",
+        :createdAt="createdAt" :content="content">
+    </passage-view>
+    <p>评论</p>
+    <form  ref="newComment" :action="`/comments?passageId=${id}`" method="POST">
+      <textarea name="content" v-model="newComment" id="" cols="30" rows="10"></textarea>
+      <button @click="submitComment">提交</button>
+    </form>
+    <ul>
+      <li v-for="comment in comments">
+        {{ comment.content }}
       </li>
     </ul>
-    <p v-else>您还没有写过日记呢～</p>
   </div>
 </template>
 
 <script>
 import router from 'vue-router';
+import PassageView from '@/components/PassageView';
 
 export default {
   name: 'Passage',
-  computed: {
-    passages(){
-      return this.$store.state.passages;
+  components: {
+    'passage-view': PassageView
+  },
+  data(){
+    return{
+      id: 0,
+      title: '',
+      category: {
+        title: '加载中…'
+      },
+      createdAt: '',
+      content: '',
+      newComment: '',
+      comments: []
     }
   },
-  beforeCreate(){
-    if(!this.$store.state.user){
-      this.$router.replace('/');
+
+  methods: {
+    submitComment(e){
+      e.preventDefault();
+      e.stopPropagation();
+      let form = new FormData(this.$refs.newComment);
+      fetch(`/comments?passageId=${this.id}`, {
+        credentials: 'include',
+        method: 'POST',
+        body: form
+      }).then((res)=>{
+        //handle error
+      });
+      this.comments.unshift({
+        commenter: this.$store.state.user,
+        content: this.newComment
+      });
     }
-    this.$store.dispatch('FETCH_PASSAGECATEGORIES');
-    this.$store.dispatch('FETCH_PASSAGES');
+  },
+  mounted(){
+    const id = this.$route.params.id;
+    fetch(`/passages/${id}`, {
+      method: 'GET'
+    }).then((res)=>{
+      return res.json();
+    }).then((json)=>{
+      this.id = json.passage.id,
+      this.title = json.passage.title,
+      this.category = json.passage.Category,
+      this.createdAt = json.passage.createdAt,
+      this.content = json.content,
+      this.comments = json.passage.Comments
+    });
   }
 }
 </script>
+
+<style scoped>
+
+</style>

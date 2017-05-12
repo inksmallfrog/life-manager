@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:59:52
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 10:23:39
+* @Last Modified time: 2017-05-10 09:04:16
 */
 
 'use strict';
@@ -55,7 +55,7 @@ module.exports = (sequelize, types)=>{
         userId: user.id
       });
       models.Category.create({
-        title: '默认',
+        title: '文章',
         type: 'photograph',
         userId: user.id
       });

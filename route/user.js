@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 17:17:56
+* @Last Modified time: 2017-05-10 08:57:16
 */
 
 'use strict';
@@ -10,6 +10,11 @@ const Router = require('koa-router');
 
 let userRouter = new Router({
   prefix: '/users'
+});
+
+const koaBody = require('koa-body');
+let userBody = koaBody({
+  multipart: true
 });
 
 userRouter.get('/', async (ctx, next)=>{
@@ -94,7 +99,7 @@ function handlePsd(psd){
   }
 }
 
-userRouter.post('/', async (ctx, next)=>{
+userRouter.post('/', userBody, async (ctx, next)=>{
   const ask = ctx.request.query.ask;
   const { User } = ctx.orm('lifeManager');
   switch(ask){

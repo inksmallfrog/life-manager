@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 11:38:31
+* @Last Modified time: 2017-05-12 11:18:37
 */
 
 'use strict';
@@ -10,7 +10,6 @@ const Koa = require('koa');
 const Static = require('koa-static');
 const ORM = require('koa-orm');
 const Json = require('koa-json');
-const koaBody = require('koa-body');
 const app = new Koa();
 
 const dbConfig = require('./config/dev.db.js');
@@ -38,9 +37,6 @@ const CONFIG = {
 };
 app.use(session(CONFIG, app));
 
-app.use(koaBody({
-  multipart: true
-}));
 app.use(Json());
 app.use(orm.middleware);
 
@@ -51,6 +47,10 @@ const categoryRoute = require('./route/category');
 app.use(categoryRoute.routes());
 const passageRoute = require('./route/passage');
 app.use(passageRoute.routes());
+const commentRoute = require('./route/comment');
+app.use(commentRoute.routes());
+const pictureRoute = require('./route/picture');
+app.use(pictureRoute.routes());
 
 db.sync({force:true}).then(()=>{
   console.log('数据库初始化完成');

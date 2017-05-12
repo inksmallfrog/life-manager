@@ -1,7 +1,4 @@
-import Promise from 'promise-polyfill';
-if (!window.Promise) {
-  window.Promise = Promise;
-}
+import './lib/polyfill.js';
 
 import './fonts/iconfont.css';
 
@@ -14,6 +11,11 @@ import router from './router';
 import store from './store';
 
 Vue.config.productionTip = false;
+
+document.addEventListener('dragleave', (e)=>e.preventDefault(), false);
+document.addEventListener('drop', (e)=>e.preventDefault(), false);
+document.addEventListener('dragenter', (e)=>e.preventDefault(), false);
+document.addEventListener('dragover', (e)=>e.preventDefault(), false);
 
 /* eslint-disable no-new */
 new Vue({

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-09 11:37:43
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 11:53:05
+* @Last Modified time: 2017-05-12 11:55:17
 */
 
 'use strict';
@@ -13,14 +13,14 @@ let categoryRouter = new Router({
 });
 
 categoryRouter.get('/', (ctx, next)=>{
-  let userId = ctx.session.userId;
+  const userId = ctx.request.query.userId,
+        type = ctx.request.query.type;
   if(!userId){
     ctx.body = {
       hasError: true,
-      info: 'noSession'
+      info: 'noUserId'
     }
   }else{
-    const type = ctx.request.query.type;
     if(type == 'passage' || type == 'photograph'){
       let { Category, User } = ctx.orm('lifeManager');
       return Category.findAll({

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 11:43:11
+* @Last Modified time: 2017-05-12 13:00:01
 */
 
 'use strict';
@@ -15,6 +15,9 @@ export default new Vuex.Store({
     user: null,
     passages: [],
     passageCategories: [],
+    lastPicturesUploaded: [],
+    globalMessage: '',
+
 
     logginEmailError: '',
     logginPsdError: '',
@@ -31,6 +34,10 @@ export default new Vuex.Store({
     getPassages(state, passages){
       state.passages = passages;
     },
+    deletePassage(state, id){
+      let index = state.passages.findIndex(passage=>passage.id == id);
+      state.passages.splice(index, 1);
+    },
     setLogginEmailError(state, error){
       state.logginEmailError = error;
     },
@@ -42,6 +49,16 @@ export default new Vuex.Store({
     },
     setRegistPsdError(state, error){
       state.registPsdError = error;
+    },
+    finishedPassagePictureUpload(state, res){
+      state.lastPicturesUploadState = res;
+    },
+    pushToLastPassagePictures(state, pictures){
+      state.lastPicturesUploaded = state.lastPicturesUploaded.concat(pictures);
+    },
+    clearLastPassagePictures(state){
+      state.lastPicturesUploadState = '';
+      state.lastPicturesUploaded = [];
     },
     quit(state){
       state.user = null;
@@ -132,8 +149,8 @@ export default new Vuex.Store({
 
       })
     },
-    FETCH_PASSAGECATEGORIES({commit}){
-      fetch('/categories?type=passage', {
+    FETCH_PASSAGECATEGORIES({commit}, userId){
+      fetch(`/categories?type=passage&userId=${userId}`, {
         credentials: 'include',
         method: 'GET',
       }).then((res)=>{
@@ -148,8 +165,8 @@ export default new Vuex.Store({
 
       })
     },
-    FETCH_PASSAGES({commit}){
-      fetch('/passages', {
+    FETCH_PASSAGES({commit}, userId){
+      fetch(`/passages?userId=${userId}`, {
         credentials: 'include',
         method: 'GET',
       }).then((res)=>{
@@ -163,6 +180,109 @@ export default new Vuex.Store({
       }).catch((err)=>{
 
       })
+    },
+    /*
+     * 上传文章中的图片
+     * @param {commit} store自身
+     *        formdata 包含图片数据的表单数据，
+     *                 图片的name为pictures
+     * @return Array<{src}> | String
+     */
+    UPLOAD_PASSAGE_PICTURE({commit}, formdata){
+      return fetch('/pictures', {
+        credentials: 'include',
+        method: 'POST',
+        body: formdata
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError && json.pictures){
+          commit('pushToLastPassagePictures', json.pictures);
+          return json.pictures;
+        }else{
+          return json.info;
+        }
+      }).catch((err)=>{
+        return '网络错误';
+      })
+    },
+    /*
+     * 将文章保存为草稿
+     * @param {commit} store自身
+     *        passage 文章内容
+     *          {
+     *            id
+     *            title: 标题
+     *            category: 分类
+     *            content: 内容
+     *          }
+     */
+    SAVE_TO_SCRIPT({commit}, passage){
+      return fetch('/passages?type=script', {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(passage)
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError && json.passage){
+          commit('pushToLastPassagePictures', json.pictures);
+          return json.passage.id;
+        }else{
+          return json.info;
+        }
+      }).catch((err)=>{
+        return '网络错误';
+      })
+    },
+    /*
+     * 发表文章
+     * @param {commit} store自身
+     *        passage 文章内容
+     *          {
+     *            id
+     *            title: 标题
+     *            category: 分类
+     *            content: 内容
+     *          }
+     */
+    PUBLISH({commit}, passage){
+      return fetch('/passages?type=published', {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(passage)
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError && json.passage){
+          commit('pushToLastPassagePictures', json.pictures);
+          return json.passage.id;
+        }else{
+          return json.info;
+        }
+      }).catch((err)=>{
+        return '网络错误';
+      })
+    },
+    /*
+     * 删除文章
+     * @param {commit} store自身
+     *        id 文章id
+     */
+    DELETE_PASSAGE({commit}, id){
+      fetch(`/passages/${id}`, {
+        credentials: 'include',
+        method: 'DELETE'
+      }).then((res)=>{
+
+      });
+      commit('deletePassage', id);
     },
     quit(contex){
       //Using fetch to post quit request
