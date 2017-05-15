@@ -1,25 +1,25 @@
 <template>
-  <div class="userModal" @click="modalSpaceClick">
-    <div class="box" @click="boxClick">
+  <div class="userModal" @click.prevent.stop="handleModalSpaceClick">
+    <div class="box" @click.stop>
       <header class="switcher">
-        <button class="leftSwitcher" @click="toLoggin" :class="{active: isLoggin}">
+        <button class="leftSwitcher" @click.prevent="isLoggin = true" :class="{active: isLoggin}">
           登陆
           <span class="leftSwitcherArrow" :class="{active: isLoggin}"></span>
         </button>
 
-        <button class="rightSwitcher" @click="toRegist" :class="{active: !isLoggin}">
+        <button class="rightSwitcher" @click.prevent="isLoggin = false" :class="{active: !isLoggin}">
           注册
           <span class="rightSwitcherArrow" :class="{active: !isLoggin}"></span>
         </button>
       </header>
       <form action="/users?ask=loggin" id="logginForm" @submit.prevent="loggin" :class="{active: isLoggin}">
-        <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="logginEmail" :error="logginEmailError":input="clearLogginEmailError" :change="handleLogginEmail"></inputGroup>
-        <inputGroup name="psd" :type="logginPsdType" placeholder="密码" :icon="logginView" :iconClick="toggleLogginView" :switchView="true" v-model="logginPsd" :error="logginPsdError" :input="clearLogginPsdError" :change="handleLogginPsd"></inputGroup>
+        <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="logginEmail" :error="logginEmailError" :input="clearLogginEmailError" :change="handleLogginEmail"></inputGroup>
+        <inputGroup name="psd" :type="logginPsdType" placeholder="密码" :icon="logginPsdViewIcon" :iconClick="toggleLogginPsdViewAble" :switchView="true" v-model="logginPsd" :error="logginPsdError" :input="clearLogginPsdError" :change="handleLogginPsd"></inputGroup>
         <button type="submit" class="submitBtn">登陆</button>
       </form>
       <form action="/users?ask=regist" id="registForm" @submit.prevent="regist" :class="{active: !isLoggin}">
         <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="registEmail" :error="registEmailError" :input="clearRegistEmailError" :change="handleRegistEmail"></inputGroup>
-        <inputGroup name="psd" :type="registPsdType" placeholder="密码" :icon="registView" :iconClick="toggleRegistView" :switchView="true" v-model="registPsd" :error="registPsdError" :input="clearRegistPsdError" :change="handleRegistPsd"></inputGroup>
+        <inputGroup name="psd" :type="registPsdType" placeholder="密码" :icon="registPsdViewIcon" :iconClick="toggleRegistPsdViewAble" :switchView="true" v-model="registPsd" :error="registPsdError" :input="clearRegistPsdError" :change="handleRegistPsd"></inputGroup>
         <button type="submit" class="submitBtn">注册</button>
       </form>
     </div>
@@ -40,150 +40,151 @@ export default {
   data(){
     return {
       isLoggin: this.pIsLoggin,
+
       logginEmail: '',
+      logginEmailError: '',
       logginPsd: '',
-      registEmail: '',
-      registPsd: '',
+      logginPsdError: '',
       logginPsdType: 'password',
+
+      registEmail: '',
+      registEmailError: '',
+      registPsd: '',
+      registPsdError: '',
       registPsdType: 'password'
     };
   },
   computed: {
-    logginEmailError(){
-      return this.$store.state.logginEmailError;
-    },
-    logginPsdError(){
-      return this.$store.state.logginPsdError;
-    },
-    registEmailError(){
-      return this.$store.state.registEmailError;
-    },
-    registPsdError(){
-      return this.$store.state.registPsdError;
-    },
-    logginView(){
+    logginPsdViewIcon(){
       return this.logginPsdType == 'password' ? 'icon-unviewable': 'icon-viewable';
     },
-    registView(){
+    registPsdViewIcon(){
       return this.registPsdType == 'password' ? 'icon-unviewable': 'icon-viewable';
     }
   },
   methods: {
-    modalSpaceClick(e){
-      this.$emit('close');
-      e.stopPropagation();
-      e.preventDefault();
-    },
-    boxClick(e){
-      e.stopPropagation();
-    },
-    toLoggin(e){
-      this.isLoggin = true;
-    },
-    toRegist(e){
-      this.isLoggin = false;
-    },
     loggin(e){
-      if(this.logginEmailError){
-//        document.getElementById('logginEmail').focus();
-        return;
-      }
-      if(this.logginPsdError){
-//        document.getElementById('logginPsd').focus();
+      if(this.logginEmailError || this.logginPsdError){
         return;
       }
       else{
         let form = new FormData(e.target);
-        this.$store.dispatch('LOGGIN', form);
+        this.$store.dispatch('LOGGIN', form)
+          .then((json)=>{
+            if(json.hasError){
+              switch(json.param){
+                case 'email':
+                  this.logginEmailError = '这个邮箱还没有注册';
+                  break;
+                case 'psd':
+                  this.logginPsdError = '密码错误';
+                  break;
+                default:
+                  break;
+              }
+            }
+            else{
+              this.$store.commit('closeModal');
+            }
+          })
       }
     },
     regist(e){
-      console.log('sss');
-      if(this.registEmailError){
-        //document.getElementById('registEmail').focus();
-        return;
-      }
-      if(this.registPsdError){
-        //document.getElementById('registPsd').focus();
+      if(this.registEmailError || this.registPsdError){
         return;
       }
       else{
-        let form = new FormData(e.target);
-        this.$store.dispatch('REGISTER', form);
+        this.$store.dispatch('REGIST', new FormData(e.target))
+          .then(()=>{
+            this.$store.commit('closeModal');
+          });
       }
     },
     handleLogginEmail(e){
       const email = e.target.value;
       if(!email){
-        this.$store.commit('setLogginEmailError', '');
+        this.logginEmailError = '';
       }
       else{
         if(!/[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/.test(email)){
-          this.$store.commit('setLogginEmailError', '请检查邮箱是否正确');
+
+         this.logginEmailError = '请检查邮箱是否正确';
         }
         else{
-          this.$store.commit('setLogginEmailError', '');
+          this.logginEmailError = '';
         }
       }
-    },
-    clearLogginEmailError(e){
-      this.$store.commit('setLogginEmailError', '');
     },
     handleLogginPsd(e){
       const psd = e.target.value;
       if(!psd){
-        this.$store.commit('setLogginPsdError', '');
+        this.logginPsdError = '';
       }
       else{
         if(psd.length < 6){
-          this.$store.commit('setLogginPsdError', '密码不会少于6位哟');
+          this.logginPsdError = '密码不会少于6位哟';
         }
         else{
-          this.$store.commit('setLogginPsdError', '');
+          this.logginPsdError = '';
         }
       }
     },
+    clearLogginEmailError(e){
+      this.logginEmailError = '';
+    },
     clearLogginPsdError(e){
-      this.$store.commit('setLogginPsdError', '');
+      this.logginPsdError = '';
     },
     handleRegistEmail(e){
       const email = e.target.value;
       if(!email){
-        this.$store.commit('setRegistEmailError', '');
+        this.registEmailError = '';
       }
       else{
         if(!/[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/.test(email)){
-          this.$store.commit('setRegistEmailError', '请检查邮箱格式是否正确');
+          this.registEmailError = '请检查邮箱格式是否正确';
         }
         else{
-          this.$store.dispatch('CHECK_EMAIL_CONFLICT', email);
+          this.$store.dispatch('CHECK_EMAIL_CONFLICT', email)
+            .then((json)=>{
+              if(!json.hasError && json.exist){
+                this.registEmailError = '这个邮箱已经注册了';
+              }else if(!json.hasError && !json.exist){
+                this.registEmailError = '';
+              }else{
+                this.registEmailError = '这个邮箱发生了神奇的错误……请更换邮箱';
+              }
+            });
         }
       }
-    },
-    clearRegistEmailError(e){
-      this.$store.commit('setRegistEmailError', '')
     },
     handleRegistPsd(e){
       const psd = e.target.value;
       if(!psd){
-        this.$store.commit('setRegistPsdError', '');
+        this.registPsdError = '';
       }
       else{
         if(psd.length < 6){
-          this.$store.commit('setRegistPsdError', '为了保证您的帐号安全，请输入不少于6位的密码');
+          this.registPsdError = '安全起见，请输入不少于6位的密码';
         }
         else{
-          this.$store.commit('setRegistPsdError', '');
+          this.registPsdError = '';
         }
       }
     },
-    clearRegistPsdError(e){
-      this.$store.commit('setRegistPsdError', '');
+    clearRegistEmailError(e){
+      this.registEmailError = '';
     },
-    toggleLogginView(){
+    clearRegistPsdError(e){
+      this.registPsdError = '';
+    },
+    handleModalSpaceClick(e){
+      this.$store.commit('closeModal');
+    },
+    toggleLogginPsdViewAble(){
       this.logginPsdType = this.logginPsdType == 'password' ? 'text' : 'password';
     },
-    toggleRegistView(){
+    toggleRegistPsdViewAble(){
       this.registPsdType = this.registPsdType == 'password' ? 'text' : 'password';
     }
   }

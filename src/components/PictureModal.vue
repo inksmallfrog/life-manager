@@ -1,6 +1,6 @@
 <template>
   <div class="modal" @click="modalSpaceClick">
-    <div class="box" @click="boxClick">
+    <div class="box" @click.stop>
       <form action="/pictures" method="POST" id="pictureForm" @submit.prevent="picUpload" enctype="multipart/form-data">
         <input type="file" name="pictures" accept="image/jpeg,image/png,image/gif,image/bmp" multiple @change="addPics" @click="handleFileInput">
       </form>
@@ -35,9 +35,6 @@ export default {
       this.$emit('close');
       e.stopPropagation();
       e.preventDefault();
-    },
-    boxClick(e){
-      e.stopPropagation();
     },
     picUpload(e){
       e.stopPropagation();

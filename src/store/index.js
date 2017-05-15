@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-12 13:00:01
+* @Last Modified time: 2017-05-15 09:26:57
 */
 
 'use strict';
@@ -13,21 +13,45 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state:{
     user: null,
+    host: null,
     passages: [],
     passageCategories: [],
+
     lastPicturesUploaded: [],
-    globalMessage: '',
 
+    globalMessage: {
+      content: '测试',
+      type: 'info'
+    },
+    hasNewMessage: false,
 
-    logginEmailError: '',
-    logginPsdError: '',
-    registEmailError: '',
-    registPsdError: ''
+    currentModal: {
+      name: '',
+      state: null
+    }
   },
   mutations: {
     loggin(state, user){
       state.user = user;
     },
+    quit(state){
+      state.user = null;
+    },
+
+    showModal(state, modal){
+      state.currentModal = modal;
+    },
+    closeModal(state){
+      state.currentModal.name = '';
+    },
+
+    setGlobalMessage(state, message){
+      state.globalMessage = message;
+    },
+    hasNewMessage(state, hasNewMessage){
+      state.hasNewMessage = hasNewMessage;
+    },
+
     getPassageCategories(state, categories){
       state.passageCategories = categories;
     },
@@ -38,18 +62,7 @@ export default new Vuex.Store({
       let index = state.passages.findIndex(passage=>passage.id == id);
       state.passages.splice(index, 1);
     },
-    setLogginEmailError(state, error){
-      state.logginEmailError = error;
-    },
-    setLogginPsdError(state, error){
-      state.logginPsdError = error;
-    },
-    setRegistEmailError(state, error){
-      state.registEmailError = error;
-    },
-    setRegistPsdError(state, error){
-      state.registPsdError = error;
-    },
+
     finishedPassagePictureUpload(state, res){
       state.lastPicturesUploadState = res;
     },
@@ -59,14 +72,15 @@ export default new Vuex.Store({
     clearLastPassagePictures(state){
       state.lastPicturesUploadState = '';
       state.lastPicturesUploaded = [];
-    },
-    quit(state){
-      state.user = null;
     }
   },
   actions: {
+    /*
+     * 检查用户是否已登录
+     * @param {commit} store
+     */
     CHECK_LOGGED({commit}){
-      fetch('/users?ask=checkLogged', {
+      return fetch('/users?ask=checkLogged', {
         credentials: 'include',
         method: 'GET'
       }).then((res)=>{
@@ -74,15 +88,16 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError && json.user){
           commit('loggin', json.user);
-        }else{
-          //do nothing
         }
-      }).catch((err)=>{
-
       })
     },
-    LOGGIN({commit}, form){
-      fetch('/users?ask=loggin', {
+    /*
+     * 尝试用户登录
+     * @param {commit} store
+     *        form 用户登录表单
+     */
+    LOGGIN({commit, dispatch}, form){
+      return fetch('/users?ask=loggin', {
         credentials: 'include',
         method: 'POST',
         body: form
@@ -91,48 +106,43 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError && json.user){
           commit('loggin', json.user);
-        }else{
-          switch(json.param){
-            case 'email':
-              if(json.type == 'nomatch'){
-                commit('setLogginEmailError', '这个邮箱还没有注册');
-              }
-              break;
-            case 'psd':
-              if(json.type == 'nomatch'){
-                commit('setLogginPsdError', '密码错误');
-              }
-              break;
-            default:
-              break;
-          }
+          dispatch('PUSH_MESSAGE', {
+            content: '登录成功',
+            type: 'info'
+          })
         }
+        return json;
       }).catch((err)=>{
-
+        //网络错误
       })
     },
+    /*
+     * 检查注册邮箱是否已存在
+     * @param {commit} store
+     *        email 用户填写的邮箱
+     */
     CHECK_EMAIL_CONFLICT({commit}, email){
-      fetch('/users?ask=emailexists', {
+      return fetch('/users?ask=emailexists', {
         credentials: 'include',
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           email: email
-        }
+        })
       }).then((res)=>{
         return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.exist){
-          commit('setRegistEmailError', '这个邮箱已经注册了');
-        }else if(!json.hasError && !json.exist){
-          commit('setRegistEmailError', '');
-        }else{
-
-        }
       }).catch((err)=>{
-
+        //网络错误
       })
     },
-    REGISTER({commit}, form){
+    /*
+     * 执行注册操作
+     * @param {commit} store
+     *        form 注册表单
+     */
+    REGIST({commit}, form){
       fetch('/users?ask=regist', {
         credentials: 'include',
         method: 'POST',
@@ -142,11 +152,9 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError && json.user){
           commit('loggin', json.user);
-        }else{
-          //do nothing
         }
       }).catch((err)=>{
-
+        //网络错误
       })
     },
     FETCH_PASSAGECATEGORIES({commit}, userId){
@@ -283,6 +291,23 @@ export default new Vuex.Store({
 
       });
       commit('deletePassage', id);
+    },
+
+    /*
+     * 推送新消息
+     * @param {commit} store
+     *        message {
+     *          content 内容
+     *          type valueOf['info', 'error']
+     *        }
+     */
+    PUSH_MESSAGE({commit}, message){
+      commit('setGlobalMessage', message);
+      commit('hasNewMessage', true);
+      //消息停留时间
+      setTimeout(()=>{
+        commit('hasNewMessage', false);
+      }, 5000);
     },
     quit(contex){
       //Using fetch to post quit request

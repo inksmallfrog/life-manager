@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-10 08:57:16
+* @Last Modified time: 2017-05-15 08:28:10
 */
 
 'use strict';
@@ -161,15 +161,13 @@ userRouter.post('/', userBody, async (ctx, next)=>{
           if(!user){
             ctx.body = {
               hasError: true,
-              type: 'nomatch',
-              param: "email"
+              info: 'email'
             }
           }
           else if(user.psd != psd){
             ctx.body = {
               hasError: true,
-              type: 'nomatch',
-              param: 'psd'
+              info: 'psd'
             }
           }
           else{
@@ -190,7 +188,10 @@ userRouter.post('/', userBody, async (ctx, next)=>{
           }
         })
         .catch((error)=>{
-
+          ctx.body = {
+            hasError: true,
+            info: error
+          }
         });
       break;
     }

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-12 19:03:02
+* @Last Modified time: 2017-05-15 08:15:37
 */
 
 'use strict';
@@ -19,8 +19,8 @@ const db = orm.database('lifeManager');
 const webpack = require('webpack'),
       webpackConfig = require('./build/webpack.dev.conf'),
       compiler = webpack(webpackConfig),
-      webpackDevMiddleware = require('koa-webpack-dev-middleware'),
-      webpackHotMiddleware = require('koa-webpack-hot-middleware');
+      webpackDevMiddleware = require('./lib/koa-webpack-dev-middleware'),
+      webpackHotMiddleware = require('./lib/koa-webpack-hot-middleware');
 app.use(webpackDevMiddleware(compiler,  webpackConfig.devServer));
 app.use(webpackHotMiddleware(compiler));
 

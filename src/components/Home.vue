@@ -60,22 +60,19 @@
       </ul>
       <p class="status">你的人生需要来一点管家么？</p>
       <div class="operations">
-        <button class="loggin" @click="showUserModalLog">现在登陆</button>
-        <button class="regist" @click="showUserModalReg">马上注册</button>
+        <button class="loggin" @click.prevent="showUserModalLog">现在登陆</button>
+        <button class="regist" @click.prevent="showUserModalReg">马上注册</button>
       </div>
-      <userModal v-if="modalShow" v-on:close="closeUserModal" :pIsLoggin="isLoggin"></userModal>
+
     </div>
   </div>
 </template>
 
 <script>
-import UserModal from '@/components/UserModal';
+
 
 export default {
   name: 'home',
-  components: {
-    userModal: UserModal,
-  },
   data(){
     return{
       modalShow: false,
@@ -89,16 +86,20 @@ export default {
   },
   methods: {
     showUserModalLog(e){
-      this.isLoggin = true;
-      this.modalShow = true;
-      e.stopPropagation();
-      e.preventDefault();
+      this.$store.commit('showModal', {
+        name: 'userModal',
+        state: {
+          isLoggin: true
+        }
+      });
     },
     showUserModalReg(e){
-      this.isLoggin = false;
-      this.modalShow = true;
-      e.stopPropagation();
-      e.preventDefault();
+      this.$store.commit('showModal', {
+        name: 'userModal',
+        state: {
+          isLoggin: false
+        }
+      });
     },
     closeUserModal(){
       this.modalShow = false;
@@ -113,12 +114,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .home{
-  height: 100vh;
+  min-height: 100vh;
 }
 figure{
   position: relative;
   width: 100%;
-  height: 60%;
+  height: 60vh;
 }
 img{
   width: 100%;
