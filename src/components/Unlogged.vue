@@ -1,48 +1,16 @@
 <template>
-  <div class="home">
-    <figure>
-      <img src="../assets/19.jpg" alt="" class="banner">
-      <figcaption>
-        <p class="text">「前天是小兔子，昨天是小鹿，今天是你」
-          <p class="from">——《Clannad》</p>
-        </p>
-      </figcaption>
-    </figure>
-    <div class="logged">
-      <ul class="itemlist">
-        <li class="item">
-          <router-link to="/passages" class="icon">
-            <span class="iconfont icon-passage"></span>
-          </router-link>
-          <div class="descript">心情日记</div>
-        </li>
-        <li class="item">
-          <router-link to="/todos" class="icon">
-            <span class="iconfont icon-todo"></span>
-          </router-link>
-          <div class="descript">人生计划</div>
-        </li>
-        <li class="item">
-          <div class="icon">
-            <span class="iconfont icon-more"></span>
-          </div>
-          <div class="descript">更多期待</div>
-        </li>
-      </ul>
-      <div class="userInfo">
-        <img :src="user.favicon" alt="">
-        <div class="userText">
-          <p>{{ user.name }}</p>
-          <p>{{ user.des }}</p>
-        </div>
+  <div class="unlogged">
+      <p>未登录</p>
+      <p class="status">你的人生需要来一点管家么？</p>
+      <div class="operations">
+        <button class="loggin" @click.prevent="showUserModalLog">现在登陆</button>
+        <button class="regist" @click.prevent="showUserModalReg">马上注册</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-
 export default {
   name: 'home',
   data(){
@@ -53,7 +21,11 @@ export default {
   },
   computed: {
     user(){
-      return this.$store.state.user
+      const user = this.$store.state.user;
+      console.log(user);
+      if(user){
+        this.$router.replace(`/${user.id}/home`);
+      }
     }
   },
   methods: {
@@ -61,7 +33,8 @@ export default {
       this.$store.commit('showModal', {
         name: 'userModal',
         state: {
-          isLoggin: true
+          isLoggin: true,
+          doJump: true
         }
       });
     },
@@ -69,21 +42,26 @@ export default {
       this.$store.commit('showModal', {
         name: 'userModal',
         state: {
-          isLoggin: false
+          isLoggin: false,
+          doJump: true
         }
       });
     },
     closeUserModal(){
       this.modalShow = false;
+    },
+    show(){
+      console.log(this.$store);
     }
   },
-  beforeCreate(){
-    this.$store.dispatch('CHECK_LOGGED');
+  watch:{
+    '$store': 'show'
   },
-  beforeMount(){
+  mounted(){
     const user = this.$store.state.user;
-    if(!user){
-      this.$router.replace('/');
+    console.log(user);
+    if(user){
+      this.$router.replace(`/${user.id}/home`);
     }
   }
 };

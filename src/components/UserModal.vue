@@ -34,12 +34,12 @@ export default {
     inputGroup: InputGroup
   },
   props:{
-    pIsLoggin: Boolean,
+    state: Object,
     default: true
   },
   data(){
     return {
-      isLoggin: this.pIsLoggin,
+      isLoggin: this.state.isLoggin,
 
       logginEmail: '',
       logginEmailError: '',
@@ -85,6 +85,9 @@ export default {
             }
             else{
               this.$store.commit('closeModal');
+              if(this.state.doJump){
+                this.$router.replace(`/${json.user.id}`);
+              }
             }
           })
       }
@@ -95,8 +98,11 @@ export default {
       }
       else{
         this.$store.dispatch('REGIST', new FormData(e.target))
-          .then(()=>{
+          .then((json)=>{
             this.$store.commit('closeModal');
+            if(this.state.doJump){
+              this.$router.replace(`/${json.user.id}`);
+            }
           });
       }
     },

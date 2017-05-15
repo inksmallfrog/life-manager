@@ -1,6 +1,6 @@
 <template>
-  <div @scroll="scroll">
-    <h1 class="title">{{ title }}</h1>
+  <div @scroll="scroll" class="passageView">
+    <h1 class="title">{{ title ? title : '无题' }}</h1>
     <div class="metaBox">
       <p class="meta">分类：{{ category }}</p>
       <p v-if="createdAt" class="meta">发布于：{{ createdAt.substring(0, 10) }}</p>
@@ -54,6 +54,10 @@ export default {
 
 <style>
 @import '../styles/_variables.css';
+.passageView{
+  margin-right: 2rem;
+}
+
 .title{
   text-align: center;
   font-size: 2.5rem;
@@ -66,6 +70,9 @@ export default {
 }
 .meta:first-child{
   margin-right: 4rem;
+}
+.meta:last-child{
+  margin-right: 0;
 }
 .markdown{
   & h1{

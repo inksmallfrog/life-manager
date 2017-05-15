@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 08:28:10
+* @Last Modified time: 2017-05-15 11:20:51
 */
 
 'use strict';
@@ -45,23 +45,25 @@ userRouter.get('/', async (ctx, next)=>{
           ctx.session.userId = userId;
         }
         const { User } = ctx.orm('lifeManager');
-        return User.findById(userId).then((user)=>{
-                  ctx.body = {
-                    hasError: false,
-                    'user': {
-                      'id': user.id,
-                      'email': user.email,
-                      'name': user.name,
-                      'favicon': user.favicon,
-                      'des': user.des
-                    }
-                  };
-                }).catch((error)=>{
-                  ctx.body = {
-                    hasError: true,
-                    info: error
-                  }
-                });
+        return User.findById(userId, {
+            attributes: ['id', 'name', 'favicon', 'des']
+          }).then((user)=>{
+            ctx.body = {
+              hasError: false,
+              user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                favicon: user.favicon,
+                des: user.des
+              }
+            };
+          }).catch((error)=>{
+            ctx.body = {
+              hasError: true,
+              info: error
+            }
+          });
       }
       break;
     default:
@@ -155,9 +157,8 @@ userRouter.post('/', userBody, async (ctx, next)=>{
         ctx.body = psdRes
       }
       return User.findOne({
-        email: email,
-      })
-        .then((user)=>{
+          email: email,
+        }).then((user)=>{
           if(!user){
             ctx.body = {
               hasError: true,
@@ -186,8 +187,7 @@ userRouter.post('/', userBody, async (ctx, next)=>{
               }
             };
           }
-        })
-        .catch((error)=>{
+        }).catch((error)=>{
           ctx.body = {
             hasError: true,
             info: error

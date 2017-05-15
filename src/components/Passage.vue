@@ -3,9 +3,9 @@
     <passage-view class="article" :title="title" :category="category.title"
         :createdAt="createdAt" :content="content">
     </passage-view>
-    <router-link v-if="neighbor.next" :to="`passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
+    <router-link v-if="neighbor.next" :to="`/passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
     <p v-else>感谢阅读，敬请期待…</p>
-    <router-link v-if="neighbor.last" :to="`passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
+    <router-link v-if="neighbor.last" :to="`/passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
     <p v-else>没有上一篇了，感谢阅读</p>
     <div class="commentArea">
       <h1>评论</h1>
@@ -17,7 +17,10 @@
         <li v-for="comment in comments">
           <div class="commenterInfo">
             <img :src="comment.User.favicon" alt="">
-            <p>{{ comment.User.name }}</p>
+            <div>
+              <p>{{ comment.User.name }}</p>
+              <p class="time">{{ comment.createdAt | timeformat }}</p>
+            </div>
           </div>
           <p class="comment">
             {{ comment.content }}
@@ -48,6 +51,16 @@ export default {
       content: '',
       newComment: '',
       comments: []
+    }
+  },
+  filters: {
+    dateformat(value) {
+      let date = new Date(value);
+      return date.Format('YYYY-MM-DD');
+    },
+    timeformat(value){
+      let date = new Date(value);
+      return date.Format('YYYY-MM-DD hh:mm:ss');
     }
   },
   computed: {
@@ -85,14 +98,14 @@ export default {
       this.comments.unshift({
         commenter: this.$store.state.user,
         content: this.newComment,
-        User: this.$store.state.user
+        User: this.$store.state.user,
+        createdAt: new Date()
       });
     }
   },
   mounted(){
-    console.log(this.$route.params.id);
-    const id = this.$route.params.id;
-    fetch(`/passages/${id}`, {
+    const passageid = this.$route.params.passageid;
+    fetch(`/passages/${passageid}`, {
       method: 'GET'
     }).then((res)=>{
       return res.json();
@@ -109,9 +122,6 @@ export default {
 </script>
 
 <style scoped>
-.passage{
-  margin: 0 10%;
-}
 .article{
   margin-bottom:2rem;
 }
@@ -120,36 +130,48 @@ export default {
 }
 .commentArea h1{
   border-bottom: 1px #666 solid;
-  margin: 2rem 0;
+  margin: 1rem 0;
 }
 .commentArea textarea{
-  width: 80%;
-  height: 200px;
+  width: 60%;
+  height: 100px;
   padding: .5rem;
   font-size: 1.2rem;
   resize: none;
   display: block;
 }
 .commentUl{
+  margin-top: 2rem;
   list-style: none;
 }
 .commentUl li{
   border-bottom: #666 1px solid;
+  margin-bottom: 2rem;
+  & .commenterInfo{
+    display: flex;
+    margin-bottom: 1rem;
+    & img{
+      border-radius: 100%;
+      width: 50px;
+      height: 50px;
+    }
+    & div{
+      height: 50px;
+      & p{
+        line-height: 25px;
+        margin-left: 1rem;
+      }
+      & .time{
+        color: #666;
+        font-size: 0.8rem;
+      }
+    }
+  }
+  & .comment{
+    margin-left: calc(1rem + 50px);
+    padding-bottom: 1rem;
+  }
 }
-.commenterInfo{
-  display: flex;
-}
-.commenterInfo img{
-  border-radius: 100%;
-  width: 50px;
-  height: 50px;
-}
-.commenterInfo p{
-  line-height: 50px;
-  margin-left: 2rem;
-}
-.comment{
-  margin-left: calc(2rem + 50px);
-  padding-bottom: 1rem;
-}
+
+
 </style>

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 08:15:37
+* @Last Modified time: 2017-05-15 13:31:16
 */
 
 'use strict';
@@ -40,6 +40,7 @@ app.use(session(CONFIG, app));
 app.use(Json());
 app.use(orm.middleware);
 
+
 app.use(Static(__dirname));
 const userRoute = require('./route/user');
 app.use(userRoute.routes());
@@ -51,6 +52,7 @@ const commentRoute = require('./route/comment');
 app.use(commentRoute.routes());
 const pictureRoute = require('./route/picture');
 app.use(pictureRoute.routes());
+
 
 db.sync().then(()=>{
   console.log('数据库初始化完成');

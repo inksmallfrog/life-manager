@@ -1,39 +1,45 @@
 <template>
   <div id="app">
-    <transition name="fade">
-      <router-view></router-view>
-    </transition>
-    <button @click="test">show message</button>
-    <userModal v-if="isUserModalShow" :pIsLoggin="userModalState"></userModal>
+    <unlogged v-if="!host"></unlogged>
+    <div v-else>
+      <navBar></navBar>
+      <transition name="left">
+        <router-view class="main"></router-view>
+      </transition>
+    </div>
+    <userModal v-if="isUserModalShow" :state="modalState"></userModal>
     <messageBar></messageBar>
   </div>
 </template>
 
 <script>
+import Unlogged from '@/components/Unlogged';
+import NavBar from '@/components/NavBar';
 import UserModal from '@/components/UserModal';
 import MessageBar from '@/components/MessageBar';
 
 export default {
   name: 'app',
   components: {
+    unlogged: Unlogged,
+    navBar: NavBar,
     userModal: UserModal,
     messageBar: MessageBar
   },
   computed: {
+    host(){
+      return this.$store.state.host || this.$store.state.user;
+    },
     isUserModalShow(){
       return this.$store.state.currentModal.name == 'userModal';
     },
-    userModalState(){
-      return this.$store.state.currentModal.state.isLoggin;
+    modalState(){
+      return this.$store.state.currentModal.state;
     },
   },
-  methods:{
-    test(){
-      this.$store.dispatch('PUSH_MESSAGE', {
-        content: '测试1',
-        type: 'info'
-      });
-    }
+  mounted(){
+    //初始化用户登录情况
+    this.$store.dispatch('CHECK_LOGGED');
   }
 };
 </script>
@@ -42,6 +48,9 @@ export default {
 *{
   padding: 0;
   margin: 0;
+}
+body{
+  overflow-x: hidden;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -52,16 +61,27 @@ export default {
   min-height: 100vh;
   height: 100%;
 }
-.fade-enter-active,
-.fade-leave-active{
-  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+.main{
+  position: absolute;
+  top: 0;
+  width: calc(100% - 150px);
+  margin-left: 150px;
+  background: #f3f8f1;
 }
-.fade-leave-active{
-  transform: translateY(-100%);
+.left-enter-active,
+.left-leave-active{
+  transition: all .5s;
+}
+.left-leave-active{
+  transform: translateX(-100%);
   opacity: 0;
 }
-.fade-enter-active{
-  transform: translateY(-100%);
+.left-enter-active{
+  transform: translateX(0);
+  opacity: 1;
+}
+.left-enter{
+  transform: translateX(100%);
   opacity: 0;
 }
 </style>

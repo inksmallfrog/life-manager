@@ -1,6 +1,7 @@
 <template>
-    <div class="messageBar" :class="{'show': isMessageShow}">
-      <p :class="message.type">{{ message.content }}</p>
+  <transition name="up">
+    <div class="messageBar" :class="message.type" v-if="isMessageShow">
+      <p>{{ message.content }}</p><a @click.prevent="doOperation" v-if="message.operation">{{ message.operation.text }}</a>
     </div>
   </transition>
 </template>
@@ -17,35 +18,45 @@ export default {
     }
   },
   methods: {
-    submitComment(e){
-      e.preventDefault();
-      e.stopPropagation();
-      let form = new FormData(this.$refs.newComment);
-      fetch(`/comments?passageId=${this.id}`, {
-        credentials: 'include',
-        method: 'POST',
-        body: form
-      }).then((res)=>{
-        //handle error
-      });
-      this.comments.unshift({
-        commenter: this.$store.state.user,
-        content: this.newComment,
-        User: this.$store.state.user
-      });
+    doOperation(){
+      this.$store.state.globalMessage.operation.do();
     }
   },
 }
 </script>
 
 <style scoped>
+.messageBar.up-leave-active{
+  bottom: -43px;
+}
+
 .messageBar{
   position: fixed;
-  height: 50px;
-  bottom: -50px;
+  left: 10%;
+  bottom: -3px;
+
+  box-sizing: border-box;
+
+  width: 80%;
+  height: 43px;
+
+  padding: 6px 20px 9px 20px;
+
+  border-radius: 3px;
+
   transition: bottom .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
-.messageBar.show{
-  bottom: 0;
+
+.messageBar.info{
+  background: rgba(128, 244, 137, 0.6);
+}
+.messageBar.error{
+  background: rgba(244, 128, 137, 0.6);
+}
+p{
+  display: inline-block;
+}
+a{
+  cursor: pointer;
 }
 </style>

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 09:26:57
+* @Last Modified time: 2017-05-15 12:08:42
 */
 
 'use strict';
@@ -20,7 +20,7 @@ export default new Vuex.Store({
     lastPicturesUploaded: [],
 
     globalMessage: {
-      content: '测试',
+      content: '',
       type: 'info'
     },
     hasNewMessage: false,
@@ -32,7 +32,14 @@ export default new Vuex.Store({
   },
   mutations: {
     loggin(state, user){
-      state.user = user;
+      if(!state.user){
+        state.user = user;
+      }
+    },
+    visit(state, user){
+      if(state.host != user){
+        state.host = user;
+      }
     },
     quit(state){
       state.user = null;
@@ -79,17 +86,20 @@ export default new Vuex.Store({
      * 检查用户是否已登录
      * @param {commit} store
      */
-    CHECK_LOGGED({commit}){
-      return fetch('/users?ask=checkLogged', {
-        credentials: 'include',
-        method: 'GET'
-      }).then((res)=>{
-        return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.user){
-          commit('loggin', json.user);
-        }
-      })
+    CHECK_LOGGED({commit, state}){
+      //仅在无用户信息时发送查询请求
+      if(!state.user){
+        return fetch('/users?ask=checkLogged', {
+          credentials: 'include',
+          method: 'GET'
+        }).then((res)=>{
+          return res.json();
+        }).then((json)=>{
+          if(!json.hasError && json.user){
+            commit('loggin', json.user);
+          }
+        })
+      }
     },
     /*
      * 尝试用户登录
@@ -106,14 +116,13 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError && json.user){
           commit('loggin', json.user);
-          dispatch('PUSH_MESSAGE', {
-            content: '登录成功',
-            type: 'info'
-          })
         }
         return json;
       }).catch((err)=>{
-        //网络错误
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*
@@ -134,7 +143,10 @@ export default new Vuex.Store({
       }).then((res)=>{
         return res.json();
       }).catch((err)=>{
-        //网络错误
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*
@@ -143,7 +155,7 @@ export default new Vuex.Store({
      *        form 注册表单
      */
     REGIST({commit}, form){
-      fetch('/users?ask=regist', {
+      return fetch('/users?ask=regist', {
         credentials: 'include',
         method: 'POST',
         body: form
@@ -153,25 +165,34 @@ export default new Vuex.Store({
         if(!json.hasError && json.user){
           commit('loggin', json.user);
         }
+        return json;
       }).catch((err)=>{
-        //网络错误
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
-    FETCH_PASSAGECATEGORIES({commit}, userId){
-      fetch(`/categories?type=passage&userId=${userId}`, {
-        credentials: 'include',
-        method: 'GET',
-      }).then((res)=>{
-        return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.categories){
-          commit('getPassageCategories', json.categories);
-        }else{
-          //do nothing
-        }
-      }).catch((err)=>{
-
-      })
+    FETCH_PASSAGECATEGORIES({commit, state}, userId){
+      if(state.passageCategories.length < 1){
+        fetch(`/categories?type=passage&userId=${userId}`, {
+          credentials: 'include',
+          method: 'GET',
+        }).then((res)=>{
+          return res.json();
+        }).then((json)=>{
+          if(!json.hasError && json.categories){
+            commit('getPassageCategories', json.categories);
+          }else{
+            //do nothing
+          }
+        }).catch((err)=>{
+          dispatch('NEW_MESSAGE', {
+            content: '网络错误，请检查您的网络连接',
+            type: 'error'
+          });
+        })
+      }
     },
     FETCH_PASSAGES({commit}, userId){
       fetch(`/passages?userId=${userId}`, {
@@ -186,7 +207,10 @@ export default new Vuex.Store({
           //do nothing
         }
       }).catch((err)=>{
-
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*
@@ -211,7 +235,10 @@ export default new Vuex.Store({
           return json.info;
         }
       }).catch((err)=>{
-        return '网络错误';
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*
@@ -243,7 +270,10 @@ export default new Vuex.Store({
           return json.info;
         }
       }).catch((err)=>{
-        return '网络错误';
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*
@@ -257,7 +287,7 @@ export default new Vuex.Store({
      *            content: 内容
      *          }
      */
-    PUBLISH({commit}, passage){
+    PUBLISH({commit, dispatch}, passage){
       return fetch('/passages?type=published', {
         credentials: 'include',
         method: 'POST',
@@ -275,7 +305,10 @@ export default new Vuex.Store({
           return json.info;
         }
       }).catch((err)=>{
-        return '网络错误';
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
       })
     },
     /*

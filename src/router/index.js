@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import Unlogged from '@/components/Unlogged';
 import Home from '@/components/Home';
 import PassageList from '@/components/PassageList';
 import Passage from '@/components/Passage';
@@ -11,23 +12,23 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Home',
-      component: Home,
+      name: 'index',
+      component: Home
     },
     {
-      path: '/passages',
-      name: 'SelfPassageList',
+      path: '/:userid',
+      name: 'Home',
+      component: Home
+    },
+    {
+      path: '/:userid/passages',
+      name: 'PassageList',
       component: PassageList
     },
     {
-      path: '/passages/:id',
+      path: '/passages/:passageid',
       name: 'Passage',
       component: Passage
-    },
-    {
-      path: '/userPassages/:userId',
-      name: 'UserPassageList',
-      component: PassageList
     },
     {
       path: '/editPassage/:id',

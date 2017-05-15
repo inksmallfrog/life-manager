@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:39:16
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 08:17:46
+* @Last Modified time: 2017-05-15 13:38:39
 */
 
 'use strict';
@@ -16,6 +16,7 @@ module.exports = {
   dialect: 'mysql',
   host: '127.0.0.1',
   port: 3306,
+  timezone: '+08:00', //for writing to database
   logging: console.log,
   pool: {
     maxConnections: 10,

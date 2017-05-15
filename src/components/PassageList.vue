@@ -9,7 +9,7 @@
     <ul v-if="passages.length">
       <li v-for="passage in passages">
         <p>{{ passage.Category.title }}</p>
-        <p>{{ passage.createdAt }}</p>
+        <p>{{ passage.createdAt | dateformat }}</p>
         <router-link :to="`/passages/${passage.id}`">{{ passage.title }}</router-link>
         <router-link :to="`/editPassage/${passage.id}`" v-if="!isVisitMode">edit</router-link>
         <button @click="deletePassage(passage.id)" v-if="!isVisitMode">delete</button>
@@ -35,6 +35,12 @@ export default {
       return this.$store.state.passages.filter((passage)=>{
               return passage.state !== this.filter;
             });
+    }
+  },
+  filters: {
+    dateformat(value) {
+      let date = new Date(value);
+      return date.Format('YYYY-MM-DD');
     }
   },
   methods: {

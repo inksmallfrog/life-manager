@@ -13,7 +13,6 @@
           <button @click="publish" type="submit"><span class="iconfont icon-submit"></span>发布</button>
         </div>
       </div>
-      <p v-if="dropUploading">{{ uploadingState }}</p>
       <textarea v-model="content" ref="editor" @blur="saveEditorPos" @drop="dropPics" @scroll="scroll"></textarea>
     </form>
     <passage-view ref="preview" class="preview" v-if="viewMode" :title="title" :category="category.title" :content="content" :scroll="scroll"></passage-view>
@@ -39,13 +38,15 @@ export default {
     return{
       id: -1,
       title: '',
-      category: this.$store.state.passageCategories[0],
+      category: this.$store.state.passageCategories[0] || {
+        id: -2,
+        title: '加载分类数据中'
+      },
       content: '',
       picUpload: false,
       viewMode: true,
       editorPos: 0,
       dropUploading: false,
-      uploadingState: '',
       scrollDirty: false
     }
   },
@@ -54,8 +55,11 @@ export default {
       return marked(this.content);
     },
     categories(){
+      if(this.$store.state.passageCategories.length > 0 && this.category.id == -2){
+        this.category = this.$store.state.passageCategories[0];
+      }
       return this.$store.state.passageCategories;
-    }
+    },
   },
   methods: {
     onChange(value){
@@ -116,13 +120,20 @@ export default {
         }
         if(picNum > 0){
           this.dropUploading = true;
-          this.uploadingState = '上传中...';
+          this.$store.dispatch('PUSH_MESSAGE',{
+            content: '图片上传中……',
+            type: 'info'
+          });
           this.$store.commit('clearLastPassagePictures');
           this.$store.dispatch('UPLOAD_PASSAGE_PICTURE', fd)
             .then((res)=>{
               if(typeof res == 'string'){
-                this.uploadingState = res;
+                this.$store.dispatch('PUSH_MESSAGE',{
+                  content: '图片上传失败：' + res,
+                  type: 'error'
+                });
               }else{
+                this.$store.commit('hasNewMessage', false);
                 this.dropUploading = false;
                 this.addPictureToEditor(this.$store.state.lastPicturesUploaded);
               }
@@ -193,18 +204,25 @@ export default {
     }
   },
   mounted(){
-    const id = this.$route.params.id;
-    console.log(id);
+    const id = this.$route.params.id,
+          user = this.$store.state.user;
+    this.$store.dispatch('FETCH_PASSAGECATEGORIES', user.id);
     if(id != '-1'){ //修改已有文章
       fetch(`/passages/${id}`, {
         method: 'GET'
       }).then((res)=>{
         return res.json();
       }).then((json)=>{
-        this.id = json.metadata.id,
-        this.title = json.metadata.title,
-        this.category = json.metadata.Category,
-        this.content = json.content
+        console.log(json);
+        if(json.passage.Category.User.id == user.id){
+          this.id = json.passage.id,
+          this.title = json.passage.title,
+          this.category = json.passage.Category,
+          this.content = json.content
+        }
+        else{
+          //Hack?
+        }
       });
     }
   }
@@ -214,7 +232,6 @@ export default {
 <style scoped>
   .newPassage{
     display: flex;
-    width: 100%;
     height: 100vh;
     overflow-y: hidden;
   }
@@ -231,9 +248,7 @@ export default {
     width: 100%;
     height: 36px;
     padding: 0 .5rem;
-  }
-  .operationsGroup{
-
+    box-sizing: border-box;
   }
   label{
     display: inline-block;
@@ -243,7 +258,7 @@ export default {
   .v-select{
     display: inline-block;
     height: 36px;
-    width: 50%;
+    width: 40%;
     vertical-align: middle;
   }
   .right{
