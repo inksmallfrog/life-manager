@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-16 08:40:39
+* @Last Modified time: 2017-05-16 10:52:02
 */
 
 'use strict';
@@ -198,12 +198,13 @@ export default new Vuex.Store({
         commit('visit', state.user);
       }
       else{
-        return fetch('/users?ask=info', {
+        return fetch(`/users/${userId}`, {
           method: 'GET'
         }).then((res)=>{
           return res.json();
         }).then((json)=>{
           if(!json.hasError && json.user){
+            console.log('bbb');
             commit('visit', json.user);
           }
         })
@@ -393,9 +394,18 @@ export default new Vuex.Store({
         commit('hasNewMessage', false);
       }, 5000);
     },
-    quit(contex){
-      //Using fetch to post quit request
-      //contex.commit('quit');
+    /*
+     * 退出登录
+     * @param {commit} store
+     * @return Promise
+     */
+    QUIT({commit}){
+      return fetch(`/users?ask=quit`, {
+          credentials: 'include',
+          method: 'POST'
+        }).then((res)=>{
+          commit('quit');
+        });
     }
   }
 })

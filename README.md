@@ -2,6 +2,12 @@
 
 > A Vue.js project
 
+# TODO
+1. CSS for mobile
+2. profile config page
+3. todo list
+4. photographs
+
 ## Build Setup
 
 ``` bash

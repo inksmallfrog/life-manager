@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 11:20:51
+* @Last Modified time: 2017-05-16 10:55:42
 */
 
 'use strict';
@@ -24,7 +24,7 @@ userRouter.get('/', async (ctx, next)=>{
       let userId = -1,
           fromSession = false;
       //检查session登陆
-      if(ctx.session){
+      if(ctx.session && ctx.session.userId){
         userId = ctx.session.userId;
         fromSession = true;
       }
@@ -195,6 +195,14 @@ userRouter.post('/', userBody, async (ctx, next)=>{
         });
       break;
     }
+    case 'quit':{
+      ctx.session.userId = null;
+      ctx.cookies.set('userId', null);
+      ctx.body = {
+        hasError: false
+      }
+      break;
+    }
     case 'emailexists':
     {
       let { email } = ctx.request.body,
@@ -233,34 +241,26 @@ userRouter.post('/', userBody, async (ctx, next)=>{
 });
 
 userRouter.get('/:id', async (ctx, next)=>{
-  if(!ctx.params.id){
-    ctx.body = {
-      hasError: true,
-      info: 'no id'
-    }
-  }
-  else{
-    const { User } = ctx.orm('lifeManager');
-    User.find(ctx.params.id)
-      .then((user)=>{
-        ctx.body = {
-          hasError: false,
-          'user': {
-            'id': user.id,
-            'email': user.email,
-            'name': user.name,
-            'favicon': user.favicon,
-            'des': user.des
-          }
-        };
-      })
-      .catch((error)=>{
-        ctx.body = {
-          hasError: true,
-          'info': error
+  const { User } = ctx.orm('lifeManager');
+  return User.findById(ctx.params.id)
+    .then((user)=>{
+      ctx.body = {
+        hasError: false,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          favicon: user.favicon,
+          des: user.des
         }
-      });
-  }
+      };
+    })
+    .catch((error)=>{
+      ctx.body = {
+        hasError: true,
+        'info': error
+      }
+    });
 })
 
 module.exports = userRouter;

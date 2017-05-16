@@ -134,6 +134,10 @@ export default {
         this.createdAt = json.passage.createdAt;
         this.content = json.content;
         this.comments = json.passage.Comments;
+
+        if(this.category.User.id != hostId){
+          this.$router.replace('/404NotFound');
+        }
       });
     }
   },

@@ -6,6 +6,7 @@
       </figure>
       <div>
         <p class="name">{{ user.name }}</p>
+        <button v-if="isSelfPage" @click="quit" title="退出">退出</button>
         <p class="des">{{ user.des }}</p>
       </div>
     </header>
@@ -28,9 +29,14 @@ export default {
       return this.$store.state.host || this.$store.state.user
     },
     isSelfPage(){
-      return this.$store.state.host == this.$store.state.user;
+      return (!this.$store.state.host || this.$store.state.host == this.$store.state.user);
     }
   },
+  methods: {
+    quit(){
+      this.$store.dispatch('QUIT');
+    }
+  }
 };
 </script>
 

@@ -5,6 +5,7 @@ import Home from '@/components/Home';
 import PassageList from '@/components/PassageList';
 import Passage from '@/components/Passage';
 import PassageEditor from '@/components/PassageEditor';
+import NotFound from '@/components/NotFound';
 
 Vue.use(Router);
 
@@ -14,6 +15,11 @@ export default new Router({
       path: '/',
       name: 'index',
       component: Home
+    },
+    {
+      path: '/404NotFound',
+      name: '404',
+      component: NotFound
     },
     {
       path: '/:userid',
