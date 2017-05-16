@@ -1,7 +1,8 @@
 <template>
   <transition name="up">
     <div class="messageBar" :class="message.type" v-if="isMessageShow">
-      <p>{{ message.content }}</p><a @click.prevent="doOperation" v-if="message.operation">{{ message.operation.text }}</a>
+      <p>{{ message.content }}</p>
+      <a @click.prevent="doOperation" v-if="message.operation">{{ message.operation.text }}</a>
     </div>
   </transition>
 </template>
@@ -20,6 +21,7 @@ export default {
   methods: {
     doOperation(){
       this.$store.state.globalMessage.operation.do();
+      this.$store.commit('hasNewMessage', false);
     }
   },
 }
@@ -58,5 +60,6 @@ p{
 }
 a{
   cursor: pointer;
+  color: #68c;
 }
 </style>

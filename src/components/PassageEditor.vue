@@ -171,7 +171,15 @@ export default {
           if(this.id == -1){
             this.id = res;
           }
+          this.$store.dispatch('PUSH_MESSAGE', {
+            content: '文章已保存为草稿: ' + new Date().Format('hh:mm:ss'),
+            type: 'info'
+          });
         }else{
+          this.$store.dispatch('PUSH_MESSAGE', {
+            content: '保存草稿失败，请检查您的网络链接，手动备份文章',
+            type: 'error'
+          });
           //handle error
         }
       })

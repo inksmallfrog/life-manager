@@ -36,3 +36,11 @@
 .icon-save:before { content: "\e66a"; }
 
 .icon-submit:before { content: "\e6db"; }
+
+.icon-newPassage:before { content: "\e615"; }
+
+.icon-edit:before { content: "\e69a"; }
+
+.icon-delete:before { content: "\3474"; }
+
+.icon-send:before { content: "\e60d"; }

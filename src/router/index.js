@@ -26,7 +26,7 @@ export default new Router({
       component: PassageList
     },
     {
-      path: '/passages/:passageid',
+      path: '/:userid/passages/:passageid',
       name: 'Passage',
       component: Passage
     },

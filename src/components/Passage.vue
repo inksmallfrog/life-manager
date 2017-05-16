@@ -3,15 +3,15 @@
     <passage-view class="article" :title="title" :category="category.title"
         :createdAt="createdAt" :content="content">
     </passage-view>
-    <router-link v-if="neighbor.next" :to="`/passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
+    <router-link v-if="neighbor.next" :to="`/${host.id}/passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
     <p v-else>感谢阅读，敬请期待…</p>
-    <router-link v-if="neighbor.last" :to="`/passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
+    <router-link v-if="neighbor.last" :to="`/${host.id}/passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
     <p v-else>没有上一篇了，感谢阅读</p>
     <div class="commentArea">
       <h1>评论</h1>
       <form ref="newComment" :action="`/comments?passageId=${id}`" method="POST" v-if="user">
         <textarea name="content" v-model="newComment" id="" cols="30" rows="10"></textarea>
-        <button @click="submitComment">提交</button>
+        <button @click="submitComment" title="发表"><span class="iconfont icon-send"></span>发表</button>
       </form>
       <ul class="commentUl">
         <li v-for="comment in comments">
@@ -43,12 +43,12 @@ export default {
   data(){
     return{
       id: 0,
-      title: '',
+      title: '加载中…',
       category: {
-        title: '加载中…'
+        title: '未知'
       },
       createdAt: '',
-      content: '',
+      content: '喝杯咖啡，很快完成～',
       newComment: '',
       comments: []
     }
@@ -64,8 +64,13 @@ export default {
     }
   },
   computed: {
+    host(){
+      return this.$store.state.host;
+    },
     neighbor(){
-      const passages = this.$store.state.passages;
+      const passages = this.$store.state.passages.filter((passage)=>{
+        return passage.state == 'published'
+      });
       const currentIndex = passages.findIndex(passage=>passage.id == this.id);
       let neighbor = {
         last: null,
@@ -81,6 +86,11 @@ export default {
     },
     user(){
       return this.$store.state.user;
+    }
+  },
+  watch:{
+    '$route' (to, from){
+      this.updatePassage();
     }
   },
   methods: {
@@ -101,22 +111,34 @@ export default {
         User: this.$store.state.user,
         createdAt: new Date()
       });
+    },
+    updatePassage(){
+      //检查被访问的用户id是否改变
+      const hostId = this.$route.params.userid;
+      if(!this.$store.state.host || hostId != this.$store.state.host.id){
+        this.$store.dispatch('VISIT', hostId);
+        this.$store.dispatch('FETCH_PASSAGECATEGORIES', hostId);
+        this.$store.dispatch('FETCH_PASSAGES', hostId);
+      }
+
+      //获取文章
+      const passageid = this.$route.params.passageid;
+      fetch(`/passages/${passageid}`, {
+        method: 'GET'
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        this.id = json.passage.id;
+        this.title = json.passage.title;
+        this.category = json.passage.Category;
+        this.createdAt = json.passage.createdAt;
+        this.content = json.content;
+        this.comments = json.passage.Comments;
+      });
     }
   },
   mounted(){
-    const passageid = this.$route.params.passageid;
-    fetch(`/passages/${passageid}`, {
-      method: 'GET'
-    }).then((res)=>{
-      return res.json();
-    }).then((json)=>{
-      this.id = json.passage.id,
-      this.title = json.passage.title,
-      this.category = json.passage.Category,
-      this.createdAt = json.passage.createdAt,
-      this.content = json.content,
-      this.comments = json.passage.Comments
-    });
+    this.updatePassage();
   }
 }
 </script>
@@ -138,7 +160,14 @@ export default {
   padding: .5rem;
   font-size: 1.2rem;
   resize: none;
-  display: block;
+  vertical-align: bottom;
+}
+.commentArea button{
+  padding: 3px 7px;
+  cursor: pointer;
+  background: #6c4;
+  border: none;
+  vertical-align: bottom;
 }
 .commentUl{
   margin-top: 2rem;

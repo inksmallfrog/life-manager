@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 12:08:42
+* @Last Modified time: 2017-05-16 08:40:39
 */
 
 'use strict';
@@ -14,8 +14,11 @@ export default new Vuex.Store({
   state:{
     user: null,
     host: null,
+    passageFetched: false,
     passages: [],
+    deletedPassage: [],
     passageCategories: [],
+    passageCategoriesFetched: false,
 
     lastPicturesUploaded: [],
 
@@ -39,6 +42,8 @@ export default new Vuex.Store({
     visit(state, user){
       if(state.host != user){
         state.host = user;
+        state.passageFetched = false;
+        state.passageCategoriesFetched = false;
       }
     },
     quit(state){
@@ -61,15 +66,24 @@ export default new Vuex.Store({
 
     getPassageCategories(state, categories){
       state.passageCategories = categories;
+      state.passageCategoriesFetched = true;
     },
     getPassages(state, passages){
       state.passages = passages;
+      state.passageFetched = true;
     },
     deletePassage(state, id){
       let index = state.passages.findIndex(passage=>passage.id == id);
-      state.passages.splice(index, 1);
+      let passageDeleted = state.passages.splice(index, 1)[0];
+      state.deletedPassage.push({
+        passage: passageDeleted,
+        pos: index
+      });
     },
-
+    undoLastDelete(state, id){
+      let lastDeletedPassage = state.deletedPassage.pop();
+      state.passages.splice(lastDeletedPassage.pos, 0, lastDeletedPassage.passage);
+    },
     finishedPassagePictureUpload(state, res){
       state.lastPicturesUploadState = res;
     },
@@ -173,8 +187,30 @@ export default new Vuex.Store({
         });
       })
     },
+    /*
+     * 获取被访问的用户信息
+     * @param {commid, state} store
+     *        userId 被访问者的id
+     */
+    VISIT({commit, state}, userId){
+      if(state.host && userId == state.host.id){ return; }
+      else if(state.user && userId == state.user.id) {
+        commit('visit', state.user);
+      }
+      else{
+        return fetch('/users?ask=info', {
+          method: 'GET'
+        }).then((res)=>{
+          return res.json();
+        }).then((json)=>{
+          if(!json.hasError && json.user){
+            commit('visit', json.user);
+          }
+        })
+      }
+    },
     FETCH_PASSAGECATEGORIES({commit, state}, userId){
-      if(state.passageCategories.length < 1){
+      if(!state.passageCategoriesFetched){
         fetch(`/categories?type=passage&userId=${userId}`, {
           credentials: 'include',
           method: 'GET',
@@ -194,24 +230,26 @@ export default new Vuex.Store({
         })
       }
     },
-    FETCH_PASSAGES({commit}, userId){
-      fetch(`/passages?userId=${userId}`, {
-        credentials: 'include',
-        method: 'GET',
-      }).then((res)=>{
-        return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.passages){
-          commit('getPassages', json.passages);
-        }else{
-          //do nothing
-        }
-      }).catch((err)=>{
-        dispatch('NEW_MESSAGE', {
-          content: '网络错误，请检查您的网络连接',
-          type: 'error'
-        });
-      })
+    FETCH_PASSAGES({commit, state}, userId){
+      if(!state.passageFetched){
+        fetch(`/passages?userId=${userId}`, {
+          credentials: 'include',
+          method: 'GET',
+        }).then((res)=>{
+          return res.json();
+        }).then((json)=>{
+          if(!json.hasError && json.passages){
+            commit('getPassages', json.passages);
+          }else{
+            //do nothing
+          }
+        }).catch((err)=>{
+          dispatch('NEW_MESSAGE', {
+            content: '网络错误，请检查您的网络连接',
+            type: 'error'
+          });
+        })
+      }
     },
     /*
      * 上传文章中的图片
@@ -316,14 +354,27 @@ export default new Vuex.Store({
      * @param {commit} store自身
      *        id 文章id
      */
-    DELETE_PASSAGE({commit}, id){
-      fetch(`/passages/${id}`, {
-        credentials: 'include',
-        method: 'DELETE'
-      }).then((res)=>{
+    DELETE_PASSAGE({commit, dispatch}, id){
+      let deleteAction = setTimeout(()=>{
+        fetch(`/passages/${id}`, {
+          credentials: 'include',
+          method: 'DELETE'
+        }).then((res)=>{
 
-      });
+        });
+      }, 6000)
       commit('deletePassage', id);
+      dispatch('PUSH_MESSAGE', {
+        content: '您刚刚删除了一篇文章',
+        type: 'info',
+        operation:{
+          text: '撤销',
+          do(){
+            clearTimeout(deleteAction);
+            commit('undoLastDelete');
+          }
+        }
+      });
     },
 
     /*

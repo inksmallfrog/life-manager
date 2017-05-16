@@ -28,7 +28,7 @@ export default {
       return this.$store.state.host || this.$store.state.user
     },
     isSelfPage(){
-      return !this.$store.state.host
+      return this.$store.state.host == this.$store.state.user;
     }
   },
 };
