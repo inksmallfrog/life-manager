@@ -6,7 +6,7 @@
       </figure>
       <div>
         <p class="name">{{ user.name }}</p>
-        <button v-if="isSelfPage" @click="quit" title="退出">退出</button>
+        <button v-if="isSelfPage" @click="quit" title="退出" class="exit"><span class="iconfont icon-exit"></span></button>
         <p class="des">{{ user.des }}</p>
       </div>
     </header>
@@ -14,13 +14,12 @@
       <li><router-link :to="`/${user.id}`">主页</router-link></li>
       <li><router-link :to="`/${user.id}/passages`">文章</router-link></li>
       <li v-if="isSelfPage"><router-link :to="`/${user.id}/todo`">计划</router-link></li>
+      <li v-if="isSelfPage"><router-link :to="`/config`">设置</router-link></li>
     </ul>
   </div>
 </template>
 
 <script>
-
-
 export default {
   name: 'navBar',
   computed: {
@@ -69,6 +68,19 @@ export default {
   }
   & .name{
     font-size: 1.2rem;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  & .exit{
+    vertical-align: middle;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    & span{
+      font-size: .6rem !important;
+      color: #666;
+    }
   }
   & .des{
     font-size: .8rem;
