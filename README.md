@@ -5,6 +5,8 @@
 # TODO
 1. CSS for mobile
 2. profile config page
+  1. scale favicon depends on device
+  2. css and iconfont
 3. todo list
 4. photographs
 
