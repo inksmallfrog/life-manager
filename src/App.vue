@@ -7,7 +7,7 @@
         <router-view class="main"></router-view>
       </transition>
     </div>
-    <userModal v-if="isUserModalShow" :state="modalState"></userModal>
+    <modalControl v-if="isModalShow"></modalControl>
     <messageBar></messageBar>
   </div>
 </template>
@@ -15,7 +15,7 @@
 <script>
 import Unlogged from '@/components/Unlogged';
 import NavBar from '@/components/NavBar';
-import UserModal from '@/components/UserModal';
+import ModalControl from '@/components/ModalControl'
 import MessageBar from '@/components/MessageBar';
 
 export default {
@@ -23,18 +23,15 @@ export default {
   components: {
     unlogged: Unlogged,
     navBar: NavBar,
-    userModal: UserModal,
+    modalControl: ModalControl,
     messageBar: MessageBar
   },
   computed: {
     host(){
       return this.$store.state.host || this.$store.state.user;
     },
-    isUserModalShow(){
-      return this.$store.state.currentModal.name == 'userModal';
-    },
-    modalState(){
-      return this.$store.state.currentModal.state;
+    isModalShow(){
+      return this.$store.state.currentModal.name !== '';
     },
   },
   mounted(){

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-10 08:24:20
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-10 10:20:29
+* @Last Modified time: 2017-05-17 11:25:28
 */
 
 'use strict';
@@ -73,8 +73,8 @@ pictureRouter.post('/', picBody, (ctx, next)=>{
             })
             .catch((err)=>{
               ctx.body = {
-                hasError: false,
-                pictures: err
+                hasError: true,
+                info: err
               };
             });
         }

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-16 10:52:02
+* @Last Modified time: 2017-05-17 12:53:48
 */
 
 'use strict';
@@ -21,6 +21,7 @@ export default new Vuex.Store({
     passageCategoriesFetched: false,
 
     lastPicturesUploaded: [],
+    lastFavicon: '',
 
     globalMessage: {
       content: '',
@@ -60,10 +61,13 @@ export default new Vuex.Store({
     setGlobalMessage(state, message){
       state.globalMessage = message;
     },
+    setFavicon(state, src){
+      state.lastFavicon = src;
+    },
+
     hasNewMessage(state, hasNewMessage){
       state.hasNewMessage = hasNewMessage;
     },
-
     getPassageCategories(state, categories){
       state.passageCategories = categories;
       state.passageCategoriesFetched = true;
@@ -378,6 +382,28 @@ export default new Vuex.Store({
       });
     },
 
+    /*
+     * 上传头像
+     */
+    UPLOAD_FAVICON({commit, dispatch}, data){
+      return fetch('/users/favicon', {
+        credentials: 'include',
+        method: 'POST',
+        body: data
+      }).then((res)=>{
+        return res.json()
+      }).then((json)=>{
+        if(!json.hasError){
+          commit('setFavicon', json.src);
+        }
+        return json;
+      }).catch((err)=>{
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
+      })
+    },
     /*
      * 推送新消息
      * @param {commit} store

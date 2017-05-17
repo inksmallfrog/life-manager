@@ -33,11 +33,6 @@ export default new Router({
       component: PassageEditor
     },
     {
-      path: '/:userid',
-      name: 'Home',
-      component: Home
-    },
-    {
       path: '/:userid/passages',
       name: 'PassageList',
       component: PassageList

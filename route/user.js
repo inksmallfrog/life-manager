@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-16 10:55:42
+* @Last Modified time: 2017-05-17 11:25:33
 */
 
 'use strict';
@@ -237,6 +237,36 @@ userRouter.post('/', userBody, async (ctx, next)=>{
     }
     default:
       break;
+  }
+});
+
+let faviconBody = koaBody({
+  formLimit: '10MB',
+  multipart: true,
+  formidable: {
+    uploadDir: 'public/upload_pics'
+  }
+});
+userRouter.post('/favicon', faviconBody, async(ctx, next)=>{
+  const userId = ctx.session.userId;
+  if(!userId){
+    ctx.body = {
+      hasError: true,
+      info: 'noSession'
+    }
+  }else{
+    let favicon = ctx.request.body.files.favicon;
+    if(!favicon){
+      ctx.body = {
+        hasError: true,
+        info: 'noFavicon'
+      }
+    }else{
+      ctx.body = {
+        hasError: false,
+        src: favicon.path
+      }
+    }
   }
 });
 
