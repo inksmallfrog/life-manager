@@ -6,14 +6,17 @@
 
 <template>
   <div class="box" @click.stop>
-    <input type="file" name="pictures" accept="image/jpeg,image/png,image/gif,image/bmp" @change="handlePicture">
-    <div class="pictureBox">
+    <div class="fileInput">
+      <input type="file" name="pictures" accept="image/jpeg,image/png,image/gif,image/bmp" @change="handlePicture">
+      <button>选择头像图片</button>
+    </div>
+    <button @click.prevent.stop="zoomIn" class="zoom"><span class="iconfont icon-zoomIn"></span></button>
+    <button @click.prevent.stop="zoomOut" class="zoom"><span class="iconfont icon-zoomOut"></span></button>
+    <div class="pictureBox" :class="url ? 'hasPicture' : ''">
       <canvas class="editor" ref="editor"></canvas>
       <canvas class="cover" ref="cover" @mousewheel="handleWheel" @mousedown="dragStart" @mouseup="isDragging = false" @mousemove="drag"></canvas>
     </div>
-    <button @click.prevent.stop="zoomIn">放大</button>
-    <button @click.prevent.stop="zoomOut">缩小</button>
-    <button @click.prevent.stop="submit">确定</button>
+    <button @click.prevent.stop="submit" class="submit">确定</button>
     <div v-if="isUploading">上传中...</div>
     <canvas class="result" ref="result"></canvas>
   </div>
@@ -31,7 +34,10 @@ export default {
       targetY: 0,
       dragDirtaX: 0,
       dragDirtaY: 0,
+
+      minSize: 120,
       targetSize: 120,
+
       editorCtx: null,
       coverCtx: null,
       isDragging: false,
@@ -77,6 +83,12 @@ export default {
           imgWidth = img.width > img.height ? editor.offsetWidth : pWidth;
           imgHeight = img.height > img.width ? t.regional.offsetHeight : pHeight;
         }
+
+        const min = Math.min(imgHeight, imgWidth);
+        this.minSize = Math.floor(min / 10);
+        this.targetSize = this.minSize * 5;
+        this.targetX = 0;
+        this.targetY = 0;
 
         editor.height = imgHeight;
         editor.width = imgWidth;
@@ -188,7 +200,7 @@ export default {
     zoomIn(){
       const cover = this.$refs.cover,
             minLength = Math.min(cover.width, cover.height);
-      this.targetSize = Math.min(this.targetSize + 10, minLength);
+      this.targetSize = Math.min(this.targetSize + this.minSize, minLength);
       if(this.targetX + this.targetSize > cover.width){
         this.targetX = cover.width - this.targetSize;
       }
@@ -198,7 +210,7 @@ export default {
       this.paintCut();
     },
     zoomOut(){
-      this.targetSize = Math.max(this.targetSize - 10, 120);
+      this.targetSize = Math.max(this.targetSize - this.minSize, this.minSize);
       this.paintCut();
     },
     submit(){
@@ -241,40 +253,79 @@ export default {
 </script>
 
 <style scoped>
-  .modal{
-    position: fixed;
-    display: flex;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(128, 128, 128, 0.5);
-  }
-  .box{
-    position: relative;
-    margin: auto;
-    width: 40%;
-    height: 350px;
-    background: white;
-    border-radius: 2px;
-    overflow-x: hidden;
-  }
-  .pictureBox{
-    position: relative;
-    width: 80%;
-    margin: 0 auto;
-  }
-  .editor{
-    width: 100%;
-  }
-  .cover{
+.box{
+  position: relative;
+  margin: auto;
+  width: 40%;
+  padding: 20px;
+  background: white;
+  border-radius: 2px;
+  overflow-x: hidden;
+}
+.fileInput{
+  position: relative;
+  margin-right: 2rem;
+  margin-bottom: .5rem;
+  width: 7rem;
+  overflow-x: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  & input{
     position: absolute;
+    width: calc(100% + 10rem);
+    cursor: pointer;
+    left: -10rem;
+  }
+  & button{
+    position: relative;
     width: 100%;
-    display: block;
-    left: 0;
-    top: 0;
+    padding: 3px 0;
+    background: #6c4;
+    border: none;
+    cursor: pointer;
+    pointer-events: none;
   }
-  .result{
-    display: none;
+}
+.zoom{
+  border: none;
+  background: none;
+  margin-right: 1rem;
+  margin-bottom: .5rem;
+  cursor: pointer;
+  vertical-align: middle;
+  & span{
+    font-size: 1.4rem;
   }
+  &:focus{
+    outline: none;
+  }
+}
+.pictureBox{
+  position: relative;
+  width: 0;
+  margin: 0 auto;
+  &.hasPicture{
+    width: 100%;
+  }
+}
+.editor{
+  width: 100%;
+}
+.cover{
+  position: absolute;
+  width: 100%;
+  display: block;
+  left: 0;
+  top: 0;
+}
+.result{
+  display: none;
+}
+.submit{
+  border: none;
+  background: #6c4;
+  margin-top: .5rem;
+  padding: 3px 7px;
+  cursor: pointer;
+}
 </style>

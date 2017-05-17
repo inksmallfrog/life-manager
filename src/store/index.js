@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-17 12:53:48
+* @Last Modified time: 2017-05-18 07:12:12
 */
 
 'use strict';
@@ -39,6 +39,9 @@ export default new Vuex.Store({
       if(!state.user){
         state.user = user;
       }
+    },
+    updateUser(state, user){
+      state.user = user;
     },
     visit(state, user){
       if(state.host != user){
@@ -381,7 +384,6 @@ export default new Vuex.Store({
         }
       });
     },
-
     /*
      * 上传头像
      */
@@ -395,6 +397,28 @@ export default new Vuex.Store({
       }).then((json)=>{
         if(!json.hasError){
           commit('setFavicon', json.src);
+        }
+        return json;
+      }).catch((err)=>{
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
+      })
+    },
+    /*
+     * 修改用户信息
+     */
+    UPDATE_USER({commit}, data){
+      return fetch('/users', {
+        credentials: 'include',
+        method: 'PUT',
+        body: data
+      }).then((res)=>{
+        return res.json()
+      }).then((json)=>{
+        if(!json.hasError){
+          commit('updateUser', json.user);
         }
         return json;
       }).catch((err)=>{

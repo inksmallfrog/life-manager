@@ -46,3 +46,11 @@
 .icon-send:before { content: "\e60d"; }
 
 .icon-exit:before { content: "\e62c"; }
+
+.icon-zoomIn:before { content: "\e626"; }
+
+.icon-zoomOut:before { content: "\e63b"; }
+
+.icon-username:before { content: "\e605"; }
+
+.icon-userdes:before { content: "\e65b"; }

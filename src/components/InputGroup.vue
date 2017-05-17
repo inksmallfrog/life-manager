@@ -7,7 +7,8 @@
 <template>
   <div class="inputGroup">
     <span :class="['before', 'iconfont', icon, {'clickable': switchPsdView}]" @click="iconClick"></span>
-    <input type="text" :type="type" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="updateValue($event.target.value)" @change="handleChange">
+    <textarea v-if="type=='textarea'" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="updateValue($event.target.value)" @change="handleChange"></textarea>
+    <input v-else :type="type" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="updateValue($event.target.value)" @change="handleChange">
     <span :class="['after', 'iconfont', {'icon-error': error, 'icon-ok': ok}]"></span>
     <div class="errorBox" v-if="error">
       <span class="errorArrow"></span>
@@ -86,7 +87,7 @@
        */
       input: {
         type: Function,
-        default: (e)=>{e.stopPropagation(); e.preventDefault();}
+        default: ()=>{}
       },
       /*
        * change event callback
@@ -103,7 +104,11 @@
     },
     computed:{
       ok(){
-        return this.localValue && !this.error;
+        if(this.type != 'textarea'){
+          return this.localValue && !this.error;
+        }else{
+          return false; //Don't show icon-ok when it's textarea
+        }
       }
     },
     methods: {
@@ -115,7 +120,8 @@
         this.input();
       },
       handleChange(event){
-        this.localValue = this.$el.querySelector('input').value;
+        let selector = (this.type=='textarea') ? 'textarea' : 'input';
+        this.localValue = this.$el.querySelector(selector).value;
         this.change(event);
       }
     }
@@ -146,6 +152,16 @@
     border-bottom: #aaa 1px solid;
     outline: none;
     transition: border .5s, box-shadow .5s;
+  }
+  textarea{
+    display: block;
+    width: 100%;
+    margin: 10px auto;
+    padding: 0 5px;
+    font-size: 1.2rem;
+    line-height: 1.4rem;
+    height: 7rem;
+    resize: none;
   }
   input:focus{
     outline: none;

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-17 11:25:33
+* @Last Modified time: 2017-05-18 07:01:54
 */
 
 'use strict';
@@ -239,6 +239,38 @@ userRouter.post('/', userBody, async (ctx, next)=>{
       break;
   }
 });
+userRouter.put('/', userBody, async(ctx, next)=>{
+  const userId = ctx.session.userId;
+  if(!userId){
+    ctx.body = {
+      hasError: true,
+      info: 'noSession'
+    }
+  }else{
+    const {name, des, favicon} = ctx.request.body.fields,
+          { User } = ctx.orm('lifeManager');
+    return User.findById(userId)
+      .then((oldUser)=>{
+        return oldUser.update({
+          name: name,
+          des: des,
+          favicon: favicon
+        })
+      })
+      .then((newUser)=>{
+        ctx.body = {
+          hasError: false,
+          user: newUser
+        }
+      })
+      .catch((err)=>{
+        ctx.body = {
+          hasError: true,
+          info: err
+        }
+      })
+  }
+})
 
 let faviconBody = koaBody({
   formLimit: '10MB',
