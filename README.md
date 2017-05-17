@@ -14,6 +14,14 @@
 # install dependencies
 npm install
 
+# config database
+vim ./config/dev.db.js
+vim ./config/prod.db.js
+
+# mkdir for uploads
+mkdir public
+mkdir public/favicons && mkdir public/passages && mkdir public/upload_pics
+
 # serve with hot reload at localhost:8080
 npm run dev
 
