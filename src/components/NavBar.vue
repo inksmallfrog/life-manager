@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 左侧导航栏组件
+   */
+</script>
+
 <template>
   <div class="navBar">
     <header class="userInfo">

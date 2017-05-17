@@ -1,6 +1,12 @@
+<script>
+  /*
+   * 输入框组件
+   */
+</script>
+
 <template>
   <div class="inputGroup">
-    <span :class="['before', 'iconfont', icon, {'clickable': switchView}]" @click="iconClick"></span>
+    <span :class="['before', 'iconfont', icon, {'clickable': switchPsdView}]" @click="iconClick"></span>
     <input type="text" :type="type" :name="name" :value="value" :placeholder="placeholder" :class="{hasError: error, isOk: ok}" @input="updateValue($event.target.value)" @change="handleChange">
     <span :class="['after', 'iconfont', {'icon-error': error, 'icon-ok': ok}]"></span>
     <div class="errorBox" v-if="error">
@@ -14,42 +20,77 @@
   export default {
     name: 'inputGroup',
     props: {
+      /*
+       * input name
+       */
       name: {
         type: String,
         required: true
       },
+      /*
+       * input type
+       */
       type:{
         type: String,
         default: 'text'
       },
+      /*
+       * input value
+       */
       value: {
         type: String,
         default: ''
       },
+      /*
+       * input placeholder
+       */
       placeholder: {
         type: String,
         default: ''
       },
+      /*
+       * error message
+       */
       error: {
         type: String,
         default: ''
       },
+      /*
+       * icon on the left
+       */
       icon: {
         type: String,
         default: ''
       },
-      switchView: {
+      /*
+       * this is only designed for type='password'
+       *
+       * if the value is true, the icon will be clickable
+       */
+      switchPsdView: {
         type: Boolean,
         default: false
       },
+      /*
+       * this is only designed for type='password'
+       * only works when the switchPsdView is true
+       *
+       * the callback function when the icon is clicked
+       */
       iconClick:{
         type: Function,
         default: (e)=>{e.stopPropagation(); e.preventDefault();}
       },
+      /*
+       * input event callback
+       */
       input: {
         type: Function,
         default: (e)=>{e.stopPropagation(); e.preventDefault();}
       },
+      /*
+       * change event callback
+       */
       change: {
         type: Function,
         default: (e)=>{e.stopPropagation(); e.preventDefault();}

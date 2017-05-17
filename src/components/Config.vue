@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 个人信息配置页面（待完善）
+   */
+</script>
+
 <template>
   <div class="config">
     <form action="">

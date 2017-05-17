@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 文章列表页面
+   */
+</script>
+
 <template>
   <div class="passageList">
     <button class="newPassage"><router-link to="/editPassage/-1">+<span class="iconfont icon-newPassage">新文章</span></router-link></button>

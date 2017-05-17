@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 上传图片的对话框
+   */
+</script>
+
 <template>
   <div class="modal" @click="modalSpaceClick">
     <div class="box" @click.stop>

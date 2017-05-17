@@ -1,3 +1,8 @@
+<script>
+  /*
+   * 404 页面
+   */
+</script>
 <template>
   <div class="notFound">
     404!

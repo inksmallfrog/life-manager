@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 编辑文章页面
+   */
+</script>
+
 <template>
   <div class="newPassage">
     <form action="/passages" method="POST" :class="{withView: viewMode}"

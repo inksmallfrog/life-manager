@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 页面下方消息框组件
+   */
+</script>
+
 <template>
   <transition name="up">
     <div class="messageBar" :class="message.type" v-if="isMessageShow">

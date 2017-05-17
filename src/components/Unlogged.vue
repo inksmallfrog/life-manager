@@ -1,3 +1,8 @@
+<script>
+  /*
+   * 未登录页面
+   */
+</script>
 <template>
   <div class="unlogged">
       <p>未登录</p>

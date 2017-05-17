@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 用于控制所有对话框的显示
+   */
+</script>
+
 <template>
   <div class="modalBg" @click="$store.commit('closeModal')">
     <userModal v-if="modalName=='userModal'" :state="modalState"></userModal>

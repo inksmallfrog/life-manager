@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 文章页面
+   */
+</script>
+
 <template>
   <div class="passage">
     <passage-view class="article" :title="title" :category="category.title"

@@ -1,3 +1,8 @@
+<script>
+  /*
+   * 个人主页（待修改）
+   */
+</script>
 <template>
   <div class="home">
     <figure>

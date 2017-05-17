@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 编辑图片的对话框
+   */
+</script>
+
 <template>
   <div class="box" @click.stop>
     <input type="file" name="pictures" accept="image/jpeg,image/png,image/gif,image/bmp" @change="handlePicture">

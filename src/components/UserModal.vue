@@ -1,3 +1,9 @@
+<script>
+  /*
+   * 用户登录对话框
+   */
+</script>
+
 <template>
   <div class="box" @click.stop>
     <header class="switcher">
@@ -13,12 +19,12 @@
     </header>
     <form action="/users?ask=loggin" id="logginForm" @submit.prevent="loggin" :class="{active: isLoggin}">
       <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="logginEmail" :error="logginEmailError" :input="clearLogginEmailError" :change="handleLogginEmail"></inputGroup>
-      <inputGroup name="psd" :type="logginPsdType" placeholder="密码" :icon="logginPsdViewIcon" :iconClick="toggleLogginPsdViewAble" :switchView="true" v-model="logginPsd" :error="logginPsdError" :input="clearLogginPsdError" :change="handleLogginPsd"></inputGroup>
+      <inputGroup name="psd" :type="logginPsdType" placeholder="密码" :icon="logginPsdViewIcon" :iconClick="toggleLogginPsdViewAble" :switchPsdView="true" v-model="logginPsd" :error="logginPsdError" :input="clearLogginPsdError" :change="handleLogginPsd"></inputGroup>
       <button type="submit" class="submitBtn">登陆</button>
     </form>
     <form action="/users?ask=regist" id="registForm" @submit.prevent="regist" :class="{active: !isLoggin}">
       <inputGroup name="email" type="email" placeholder="邮箱" icon="icon-email" v-model="registEmail" :error="registEmailError" :input="clearRegistEmailError" :change="handleRegistEmail"></inputGroup>
-      <inputGroup name="psd" :type="registPsdType" placeholder="密码" :icon="registPsdViewIcon" :iconClick="toggleRegistPsdViewAble" :switchView="true" v-model="registPsd" :error="registPsdError" :input="clearRegistPsdError" :change="handleRegistPsd"></inputGroup>
+      <inputGroup name="psd" :type="registPsdType" placeholder="密码" :icon="registPsdViewIcon" :iconClick="toggleRegistPsdViewAble" :switchPsdView="true" v-model="registPsd" :error="registPsdError" :input="clearRegistPsdError" :change="handleRegistPsd"></inputGroup>
       <button type="submit" class="submitBtn">注册</button>
     </form>
   </div>

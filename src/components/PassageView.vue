@@ -1,3 +1,9 @@
+<script>
+  /*
+   * markdown显示组件
+   */
+</script>
+
 <template>
   <div @scroll="scroll" class="passageView">
     <h1 class="title">{{ title ? title : '无题' }}</h1>
