@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-09 08:43:00
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-09 08:44:39
+* @Last Modified time: 2017-05-19 07:42:24
 */
 
 'use strict';
@@ -14,7 +14,14 @@ module.exports = (sequelize, types)=>{
     },
     type:{
       type: types.ENUM,
-      values: ['passage', 'photograph']
+      values: ['passage', 'photograph', 'todo']
+    },
+    color: {
+      type: types.STRING(8),
+      defaultValue: '#ff0000',
+      validate:{
+        is: /#([0-9a-f]{3} | [0-9a-f]{6})/i
+      }
     }
   });
   Category.associate = (models)=>{
@@ -22,6 +29,9 @@ module.exports = (sequelize, types)=>{
       foreignKey: 'userId'
     });
     Category.hasMany(models.Passage, {
+      foreignKey: 'categoryId'
+    });
+    Category.hasMany(models.Todo, {
       foreignKey: 'categoryId'
     });
   };

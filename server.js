@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-15 13:31:16
+* @Last Modified time: 2017-05-19 07:49:48
 */
 
 'use strict';
@@ -30,7 +30,7 @@ app.keys = new keyGrip(['the best programmer in the world', 'to the one i love']
 const session = require('koa-session');
 const CONFIG = {
   key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
-  maxAge: 7200000, /** (number) maxAge in ms (default is 1 days) */
+                  /** (number) maxAge in ms (default is 1 days) */
   overwrite: true, /** (boolean) can overwrite or not (default true) */
   httpOnly: true, /** (boolean) httpOnly or not (default true) */
   signed: true, /** (boolean) signed or not (default true) */
@@ -52,7 +52,8 @@ const commentRoute = require('./route/comment');
 app.use(commentRoute.routes());
 const pictureRoute = require('./route/picture');
 app.use(pictureRoute.routes());
-
+const todoRoute = require('./route/todo');
+app.use(todoRoute.routes());
 
 db.sync().then(()=>{
   console.log('数据库初始化完成');

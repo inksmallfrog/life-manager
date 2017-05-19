@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-18 07:12:12
+* @Last Modified time: 2017-05-19 08:04:51
 */
 
 'use strict';
@@ -22,6 +22,9 @@ export default new Vuex.Store({
 
     lastPicturesUploaded: [],
     lastFavicon: '',
+
+    todoCategories: [],
+    todos: [],
 
     globalMessage: {
       content: '',
@@ -52,6 +55,13 @@ export default new Vuex.Store({
     },
     quit(state){
       state.user = null;
+    },
+
+    setTodoCategories(state, categories){
+      state.todoCategories = categories;
+    },
+    setTodos(state, todos){
+      state.todos = todos;
     },
 
     showModal(state, modal){
@@ -383,6 +393,50 @@ export default new Vuex.Store({
           }
         }
       });
+    },
+    /*
+     * 获取用户的todo分类
+     * @param {commit, dispatch} store
+     */
+    FETCH_TODOCATEGORIES({commit, dispatch}){
+      return fetch('/categories/type=todo', {
+        credentials: 'include',
+        method: 'GET',
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError){
+          commit('setTodoCategories', json.categories);
+        }
+      }).catch((err)=>{
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
+      })
+    },
+    /*
+     * 获取用户全部todo
+     * @param {commit, dispatch} store
+     *        type, todo的类型, 可取值：['today', 'week', 'month', 'year', 'life', 'all']
+     *              默认值： 'all'
+     */
+    FETCH_TODOS({commit, dispatch}, type='all'){
+      return fetch(`/todos?type=${type}`, {
+        credentials: 'include',
+        method: 'GET',
+      }).then((res)=>{
+        return res.json();
+      }).then((json)=>{
+        if(!json.hasError){
+          commit('setTodos', json.todos);
+        }
+      }).catch((err)=>{
+        dispatch('NEW_MESSAGE', {
+          content: '网络错误，请检查您的网络连接',
+          type: 'error'
+        });
+      })
     },
     /*
      * 上传头像

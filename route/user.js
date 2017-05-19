@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-18 07:01:54
+* @Last Modified time: 2017-05-19 08:36:59
 */
 
 'use strict';
@@ -48,6 +48,7 @@ userRouter.get('/', async (ctx, next)=>{
         return User.findById(userId, {
             attributes: ['id', 'name', 'favicon', 'des']
           }).then((user)=>{
+            user.updateTodo();
             ctx.body = {
               hasError: false,
               user: {
@@ -172,6 +173,8 @@ userRouter.post('/', userBody, async (ctx, next)=>{
             }
           }
           else{
+            user.updateTodo();
+
             let expires = new Date();
             expires.setTime(expires.getTime() + 7 * 24 * 3600 * 1000);
             ctx.cookies.set('userId', user.id, {signed: true, expires: expires, httpOnly: true});

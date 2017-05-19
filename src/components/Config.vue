@@ -80,6 +80,9 @@ export default {
       console.log(to + ' ' + from);
     }
   },
+  beforeCreate(){
+    this.$store.dispatch('CHECK_LOGGED');
+  },
   mounted(){
     if(!this.$store.state.user){
       this.$router.replace('/404NotFound');

@@ -7,6 +7,7 @@ import Passage from '@/components/Passage';
 import PassageEditor from '@/components/PassageEditor';
 import NotFound from '@/components/NotFound';
 import Config from '@/components/Config';
+import Todo from '@/components/Todo';
 
 Vue.use(Router);
 
@@ -18,9 +19,14 @@ export default new Router({
       component: Home
     },
     {
-      path: '/404NotFound',
-      name: '404',
-      component: NotFound
+      path: '/editPassage/:id',
+      name: 'PassageEditor',
+      component: PassageEditor
+    },
+    {
+      path: '/todo',
+      name: 'Todo',
+      component: Todo
     },
     {
       path: '/config',
@@ -28,9 +34,9 @@ export default new Router({
       component: Config
     },
     {
-      path: '/editPassage/:id',
-      name: 'PassageEditor',
-      component: PassageEditor
+      path: '/404NotFound',
+      name: '404',
+      component: NotFound
     },
     {
       path: '/:userid/passages',
