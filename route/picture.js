@@ -2,25 +2,28 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-10 08:24:20
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-17 11:25:28
+* @Last Modified time: 2017-06-21 17:15:14
 */
 
 'use strict';
-'use strict';
-const Router = require('koa-router');
+const Router = require('koa-router'),
+      path = require('path'),
+      config = require('../config/config');
 
 let pictureRouter = new Router({
   prefix: '/pictures'
 });
 
 const koaBody = require('koa-body');
+
 let picBody = koaBody({
-  formLimit: '10MB',
-  multipart: true,
-  formidable: {
-    uploadDir: 'public/upload_pics'
-  }
-});
+      formLimit: '10MB',
+      multipart: true,
+      formidable: {
+        uploadDir: path.resolve(config.fileSysPath, 'static/upload_pics')
+      }
+    });
+
 
 pictureRouter.post('/', picBody, (ctx, next)=>{
   let userId = ctx.session.userId;
@@ -56,12 +59,11 @@ pictureRouter.post('/', picBody, (ctx, next)=>{
         }else{
           let pictures = [];
           if(!pictureFiles.length){
-            pictures.push({src: pictureFiles.path, categoryId: category.id});
+            pictures.push({src: `static/upload_pics/${path.basename(pictureFiles.path)}`, categoryId: category.id});
           }
           else{
             for(let pictureFile of pictureFiles){
-              console.log(pictureFile.path);
-              pictures.push({src: pictureFile.path, categoryId: category.id});
+              pictures.push({src: `static/upload_pics/${path.basename(pictureFiles.path)}`, categoryId: category.id});
             }
           }
           return Picture.bulkCreate(pictures)

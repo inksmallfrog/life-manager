@@ -14,26 +14,6 @@
       </figcaption>
     </figure>
     <div class="logged">
-      <ul class="itemlist">
-        <li class="item">
-          <router-link to="/passages" class="icon">
-            <span class="iconfont icon-passage"></span>
-          </router-link>
-          <div class="descript">心情日记</div>
-        </li>
-        <li class="item">
-          <router-link to="/todos" class="icon">
-            <span class="iconfont icon-todo"></span>
-          </router-link>
-          <div class="descript">人生计划</div>
-        </li>
-        <li class="item">
-          <div class="icon">
-            <span class="iconfont icon-more"></span>
-          </div>
-          <div class="descript">更多期待</div>
-        </li>
-      </ul>
       <div class="userInfo">
         <img :src="user.favicon" alt="">
         <div class="userText">
@@ -182,25 +162,18 @@ figcaption{
   outline: none;
   cursor: pointer;
 }
-.unlogged{
-  & .status{
-    text-align: center;
-  }
-  & .loggin{
-    background: #5c9;
-  }
-  & .regist{
-    background: #f86;
-  }
-}
-
-
 .logged{
+  position: relative;
+  height: 40vh;
   & .userInfo{
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+
+    width: 100%;
     display: flex;
     justify-content: center;
     align-content: center;
-    width: 100%;
   }
   & .userInfo img{
     border-radius: 100%;
@@ -210,9 +183,11 @@ figcaption{
   }
   & .userText{
     vertical-align: middle;
+    height: 100px;
   }
   & .userText p:first-child{
     margin-top: 1rem;
+    font-size: 2rem;
   }
 }
 

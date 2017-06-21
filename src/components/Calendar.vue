@@ -1,7 +1,3 @@
-<script>
-//from https://github.com/jinzhe/vue-calendar/blob/master/src/calendar.vue
-</script>
-
 <style scoped>
 .calendar {
     width: 300px;
@@ -172,7 +168,7 @@
                     <svg width="16" height="16" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g class="transform-group"><g transform="scale(0.015625, 0.015625)"><path d="M761.056 532.128c0.512-0.992 1.344-1.824 1.792-2.848 8.8-18.304 5.92-40.704-9.664-55.424L399.936 139.744c-19.264-18.208-49.632-17.344-67.872 1.888-18.208 19.264-17.376 49.632 1.888 67.872l316.96 299.84-315.712 304.288c-19.072 18.4-19.648 48.768-1.248 67.872 9.408 9.792 21.984 14.688 34.56 14.688 12 0 24-4.48 33.312-13.44l350.048-337.376c0.672-0.672 0.928-1.6 1.6-2.304 0.512-0.48 1.056-0.832 1.568-1.344C757.76 538.88 759.2 535.392 761.056 532.128z" fill="#5e7a88"></path></g></g></svg>
                 </span>
                 <div class="text center">
-                    <input type="text" v-model="year" value="{{year}}" @change="render(year,month)" min="1970" max="2100" maxlength="4">
+                    <input type="text" v-model="year" @change="render(year,month)" min="1970" max="2100" maxlength="4">
                      /
                     {{monthString}}
                 </div>
@@ -197,11 +193,11 @@
         <div class="calendar-time" v-show="type=='datetime'||type=='time'">
 
             <div class="timer">
-                <input type="text" v-model="hour" value="{{hour}}" min="0" max="23" maxlength="2">
+                <input type="text" v-model="hour" min="0" max="23" maxlength="2">
                 时
-                <input type="text" v-model="minute" value="{{minute}}" min="0" max="59" maxlength="2">
+                <input type="text" v-model="minute" min="0" max="59" maxlength="2">
                 分
-                <input type="text" v-model="second" value="{{second}}" min="0" max="59" maxlength="2">
+                <input type="text" v-model="second" min="0" max="59" maxlength="2">
                 秒
             </div>
         </div>
@@ -213,6 +209,7 @@
 </template>
 
 <script>
+//from https://github.com/jinzhe/vue-calendar/blob/master/src/calendar.vue
 export default {
     props: {
         show: {

@@ -5,12 +5,18 @@
 </script>
 <template>
   <div class="unlogged">
-      <p>未登录</p>
-      <p class="status">你的人生需要来一点管家么？</p>
-      <div class="operations">
-        <button class="loggin" @click.prevent="showUserModalLog">现在登陆</button>
-        <button class="regist" @click.prevent="showUserModalReg">马上注册</button>
-      </div>
+      <figure>
+      <img src="../assets/19.jpg" alt="" class="banner">
+      <figcaption>
+        <p class="text">「前天是小兔子，昨天是小鹿，今天是你」
+          <p class="from">——《Clannad》</p>
+        </p>
+      </figcaption>
+    </figure>
+    <p class="status">呆萌的文章笔记网站，小蛙制造</p>
+    <div class="operations">
+      <button class="loggin" @click.prevent="showUserModalLog">现在登陆</button>
+      <button class="regist" @click.prevent="showUserModalReg">马上注册</button>
     </div>
   </div>
 </template>
@@ -29,7 +35,7 @@ export default {
       const user = this.$store.state.user;
       console.log(user);
       if(user){
-        this.$router.replace(`/${user.id}/home`);
+        this.$router.replace(`/`);
       }
     }
   },
@@ -66,7 +72,7 @@ export default {
     const user = this.$store.state.user;
     console.log(user);
     if(user){
-      this.$router.replace(`/${user.id}/home`);
+      this.$router.replace(`/`);
     }
   }
 };
@@ -144,6 +150,7 @@ figcaption{
   bottom: 0;
 }
 .status{
+  margin-top: 30px;
   margin-bottom: 30px;
 }
 .operations{

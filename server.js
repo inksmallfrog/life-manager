@@ -2,18 +2,21 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:36:34
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 07:49:48
+* @Last Modified time: 2017-06-21 17:03:27
 */
 
 'use strict';
+const env = process.env.NODE_ENV;
+const path = require('path');
+
 const Koa = require('koa');
 const Static = require('koa-static');
 const ORM = require('koa-orm');
 const Json = require('koa-json');
 const app = new Koa();
 
-const dbConfig = require('./config/dev.db.js');
-const orm = ORM([dbConfig]);
+const config = require('./config/config');
+const orm = ORM([config.dbEnv]);
 const db = orm.database('lifeManager');
 
 const webpack = require('webpack'),
@@ -21,8 +24,11 @@ const webpack = require('webpack'),
       compiler = webpack(webpackConfig),
       webpackDevMiddleware = require('./lib/koa-webpack-dev-middleware'),
       webpackHotMiddleware = require('./lib/koa-webpack-hot-middleware');
-app.use(webpackDevMiddleware(compiler,  webpackConfig.devServer));
-app.use(webpackHotMiddleware(compiler));
+
+if(env == "developing"){
+  app.use(webpackDevMiddleware(compiler,  webpackConfig.devServer));
+  app.use(webpackHotMiddleware(compiler));
+}
 
 const keyGrip = require('keygrip');
 app.keys = new keyGrip(['the best programmer in the world', 'to the one i love'], 'sha256');
@@ -40,8 +46,12 @@ app.use(session(CONFIG, app));
 app.use(Json());
 app.use(orm.middleware);
 
+if(env == "production"){
+  app.use(Static(path.join(__dirname, 'dist')));
+}else{
+  app.use(Static(__dirname));
+}
 
-app.use(Static(__dirname));
 const userRoute = require('./route/user');
 app.use(userRoute.routes());
 const categoryRoute = require('./route/category');

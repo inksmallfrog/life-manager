@@ -76,7 +76,7 @@ export default {
         this.$store.dispatch('LOGGIN', form)
           .then((json)=>{
             if(json.hasError){
-              switch(json.param){
+              switch(json.info){
                 case 'email':
                   this.logginEmailError = '这个邮箱还没有注册';
                   break;
@@ -90,7 +90,7 @@ export default {
             else{
               this.$store.commit('closeModal');
               if(this.state.doJump){
-                this.$router.replace(`/${json.user.id}`);
+                this.$router.replace(`/`);
               }
             }
           })
@@ -105,7 +105,7 @@ export default {
           .then((json)=>{
             this.$store.commit('closeModal');
             if(this.state.doJump){
-              this.$router.replace(`/${json.user.id}`);
+              this.$router.replace(`/`);
             }
           });
       }

@@ -19,7 +19,7 @@
     <ul class="pages">
       <li><router-link :to="`/`">主页</router-link></li>
       <li><router-link :to="`/${user.id}/passages`">文章</router-link></li>
-      <li v-if="isSelfPage"><router-link :to="`/${user.id}/todo`">计划</router-link></li>
+      <!--<li v-if="isSelfPage"><router-link :to="`/${user.id}/todo`">计划</router-link></li>-->
       <li v-if="isSelfPage"><router-link :to="`/config`">设置</router-link></li>
     </ul>
   </div>
@@ -39,7 +39,10 @@ export default {
   },
   methods: {
     quit(){
-      this.$store.dispatch('QUIT');
+      this.$store.dispatch('QUIT')
+        .then(()=>{
+          this.$router.replace('/');
+        });
     }
   }
 };

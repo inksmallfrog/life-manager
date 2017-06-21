@@ -35,7 +35,7 @@ export default {
     return{
       ddl: true
     }
-  }
+  },
   computed:{
     categories(){
       return this.$store.state.todoCategories;

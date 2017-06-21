@@ -95,7 +95,6 @@ export default {
 .config{
   box-sizing: border-box;
   padding: 0 40px 0 20px;
-  margin-top: 20px;
 }
 h1{
   margin-bottom: 2rem;

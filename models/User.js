@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 15:59:52
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 08:42:19
+* @Last Modified time: 2017-06-21 16:16:38
 */
 
 'use strict';
@@ -29,19 +29,19 @@ module.exports = (sequelize, types)=>{
     },
     favicon:{
       type: types.STRING(80),
-      defaultValue: '/public/favicons/default.jpg'
+      defaultValue: '/static/favicons/default.jpg'
     },
     des: {
       type: types.STRING(140),
       allowNull: true,
-      defaultValue: '生活管家，感谢有你～'
+      defaultValue: '小蛙制造，感谢有你～'
     }
   }, {
     tableName: 'appUser'
   });
   User.associate = (models)=>{
     //更新用户的Todo状态
-    User.prototype.updateTodo = ()=>{
+    User.updateTodo = function(){
       const {Todo, TodoFinished, Category, User } = models;
       Todo.findAll({
         include: [{
@@ -49,7 +49,7 @@ module.exports = (sequelize, types)=>{
           include: [{
             model: User,
             where: {
-              id: userId
+              id: this.userId
             },
             attributes:['id']
           }],
@@ -72,7 +72,7 @@ module.exports = (sequelize, types)=>{
               console.log(todo.TodoFinished);
               let lastFinished;
               if(todo.TodoFinished && todo.TodoFinished.length){
-                lastFinished = new Date(todo.TodoFinished[0].targetDate),
+                lastFinished = new Date(todo.TodoFinished[0].targetDate);
               }else{
                 lastFinished = new Date(todo.createdAt);
               }
@@ -90,7 +90,7 @@ module.exports = (sequelize, types)=>{
             case 'weekly':{
               let lastFinished;
               if(todo.TodoFinished && todo.TodoFinished.length){
-                lastFinished = new Date(todo.TodoFinished[0].targetDate),
+                lastFinished = new Date(todo.TodoFinished[0].targetDate);
               }else{
                 lastFinished = new Date(todo.createdAt);
               }
@@ -108,7 +108,7 @@ module.exports = (sequelize, types)=>{
             case 'monthly':{
               let lastFinished;
               if(todo.TodoFinished && todo.TodoFinished.length){
-                lastFinished = new Date(todo.TodoFinished[0].targetDate),
+                lastFinished = new Date(todo.TodoFinished[0].targetDate);
               }else{
                 lastFinished = new Date(todo.createdAt);
               }
@@ -126,7 +126,7 @@ module.exports = (sequelize, types)=>{
             case 'yearly':{
               let lastFinished;
               if(todo.TodoFinished && todo.TodoFinished.length){
-                lastFinished = new Date(todo.TodoFinished[0].targetDate),
+                lastFinished = new Date(todo.TodoFinished[0].targetDate);
               }else{
                 lastFinished = new Date(todo.createdAt);
               }
@@ -168,9 +168,6 @@ module.exports = (sequelize, types)=>{
         }
       })
     };
-    User.hasMany(models.TodoCategory, {
-      foreignKey: 'userId'
-    });
     User.hasMany(models.Category, {
       foreignKey: 'userId'
     });

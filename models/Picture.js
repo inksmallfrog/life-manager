@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-10 08:25:36
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-10 08:26:20
+* @Last Modified time: 2017-06-21 16:05:24
 */
 
 'use strict';
@@ -13,7 +13,7 @@ module.exports = (sequelize, types)=>{
       allowNull: true
     },
     src: {
-      type: types.STRING(80),
+      type: types.STRING(1024),
       allowNull: false,
       unique: true
     }

@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-19 07:48:05
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 08:44:58
+* @Last Modified time: 2017-06-21 08:14:56
 */
 
 'use strict';
@@ -30,7 +30,7 @@ function filterTodos(todos, type){
   return todos;
 }
 
-categoryRouter.get('/', (ctx, next)=>{
+todoRouter.get('/', (ctx, next)=>{
   const userId = ctx.session.userId,
         type = ctx.request.query.type;
   if(!userId){
@@ -57,7 +57,7 @@ categoryRouter.get('/', (ctx, next)=>{
       }],
       where:{
         state: 'doing'
-      }
+      },
       attributes: ['id', 'content', 'type', 'ddl'],
       order: [
         ['createdAt', 'DESC']
@@ -76,4 +76,4 @@ categoryRouter.get('/', (ctx, next)=>{
     })
   }
 })
-module.exports = categoryRouter;
+module.exports = todoRouter;

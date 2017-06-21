@@ -5,10 +5,10 @@
 </script>
 
 <template>
-  <div class="modal" @click="modalSpaceClick">
+  <div class="modal" @click="closeModal">
     <div class="box" @click.stop>
       <form action="/pictures" method="POST" id="pictureForm" @submit.prevent="picUpload" enctype="multipart/form-data">
-        <input type="file" name="pictures" accept="image/jpeg,image/png,image/gif,image/bmp" multiple @change="addPics" @click="handleFileInput">
+        <fileInputButton :multiple="true" :change="addPics"></fileInputButton>
       </form>
       <div class="picBox" @drop="dropPics">
         <div class="picPreview" v-for="picture in pictures">
@@ -16,11 +16,14 @@
           <p v-if="!picture.finished">{{ uploadingState }}</p>
         </div>
       </div>
+      <button @click="closeModal">确认</button>
     </div>
   </div>
 </template>
 
 <script>
+import FileInputButton from '@/components/FileInputButton';
+
 export default {
   name: 'pictureModal',
   data(){
@@ -28,6 +31,9 @@ export default {
       pictures: [],
       uploadingState: ''
     };
+  },
+  components:{
+    fileInputButton: FileInputButton
   },
   computed: {
     lastUploadFinished(){
@@ -37,7 +43,7 @@ export default {
     }
   },
   methods: {
-    modalSpaceClick(e){
+    closeModal(e){
       this.$emit('close');
       e.stopPropagation();
       e.preventDefault();
@@ -70,10 +76,7 @@ export default {
       e.preventDefault();
     },
     handleFileInput(e){
-      if(!this.lastUploadFinished){
-        e.preventDefault();
-        e.stopPropagation();
-      }
+
     },
     dropPics(e){
       e.stopPropagation();

@@ -1,4 +1,4 @@
-<template>
+heightclickcli<template>
   <div id="app">
     <unlogged v-if="!host"></unlogged>
     <div v-else>
@@ -63,7 +63,8 @@ body{
   top: 0;
   width: calc(100% - 150px);
   margin-left: 150px;
-  background: #f3f8f1;
+  background: #ececec;
+  min-height: 100vh;
 }
 .left-enter-active,
 .left-leave-active{

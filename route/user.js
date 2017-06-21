@@ -2,11 +2,13 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-07 18:05:11
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 08:36:59
+* @Last Modified time: 2017-06-21 17:22:56
 */
 
 'use strict';
-const Router = require('koa-router');
+const Router = require('koa-router'),
+      path = require('path'),
+      config = require('../config/config');
 
 let userRouter = new Router({
   prefix: '/users'
@@ -21,7 +23,7 @@ userRouter.get('/', async (ctx, next)=>{
   const ask = ctx.request.query.ask;
   switch(ask){
     case 'checkLogged':
-      let userId = -1,
+      let userId = 0,
           fromSession = false;
       //检查session登陆
       if(ctx.session && ctx.session.userId){
@@ -48,21 +50,23 @@ userRouter.get('/', async (ctx, next)=>{
         return User.findById(userId, {
             attributes: ['id', 'name', 'favicon', 'des']
           }).then((user)=>{
-            user.updateTodo();
-            ctx.body = {
-              hasError: false,
-              user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                favicon: user.favicon,
-                des: user.des
+            if(!user){
+              ctx.body={
+                hasError: true,
+                user: null
               }
-            };
-          }).catch((error)=>{
-            ctx.body = {
-              hasError: true,
-              info: error
+            }else{
+              //user.updateTodo();
+              ctx.body = {
+                hasError: false,
+                user: {
+                  id: user.id,
+                  email: user.email,
+                  name: user.name,
+                  favicon: user.favicon,
+                  des: user.des
+                }
+              };
             }
           });
       }
@@ -127,7 +131,6 @@ userRouter.post('/', userBody, async (ctx, next)=>{
           expires.setTime(expires.getTime() + 7 * 24 * 3600 * 1000);
           ctx.cookies.set('userId', user.id, {signed: true, expires: expires, httpOnly: true});
           ctx.session.userId = user.id;
-          console.log(ctx.session.userId);
           ctx.body = {
             hasError: false,
             'user': {
@@ -158,7 +161,9 @@ userRouter.post('/', userBody, async (ctx, next)=>{
         ctx.body = psdRes
       }
       return User.findOne({
-          email: email,
+          where:{
+            email: email
+          }
         }).then((user)=>{
           if(!user){
             ctx.body = {
@@ -173,7 +178,7 @@ userRouter.post('/', userBody, async (ctx, next)=>{
             }
           }
           else{
-            user.updateTodo();
+            //user.updateTodo();
 
             let expires = new Date();
             expires.setTime(expires.getTime() + 7 * 24 * 3600 * 1000);
@@ -189,11 +194,6 @@ userRouter.post('/', userBody, async (ctx, next)=>{
                 'des': user.des
               }
             };
-          }
-        }).catch((error)=>{
-          ctx.body = {
-            hasError: true,
-            info: error
           }
         });
       break;
@@ -279,7 +279,7 @@ let faviconBody = koaBody({
   formLimit: '10MB',
   multipart: true,
   formidable: {
-    uploadDir: 'public/upload_pics'
+    uploadDir: path.resolve(config.fileSysPath, 'static/upload_pics')
   }
 });
 userRouter.post('/favicon', faviconBody, async(ctx, next)=>{
@@ -299,7 +299,7 @@ userRouter.post('/favicon', faviconBody, async(ctx, next)=>{
     }else{
       ctx.body = {
         hasError: false,
-        src: favicon.path
+        src: `static/upload_pics/${path.basename(favicon.path)}`
       }
     }
   }

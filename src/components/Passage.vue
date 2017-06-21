@@ -9,10 +9,10 @@
     <passage-view class="article" :title="title" :category="category.title"
         :createdAt="createdAt" :content="content">
     </passage-view>
-    <router-link v-if="neighbor.next" :to="`/${host.id}/passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
-    <p v-else>感谢阅读，敬请期待…</p>
-    <router-link v-if="neighbor.last" :to="`/${host.id}/passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
-    <p v-else>没有上一篇了，感谢阅读</p>
+    <div class="nav">下一篇：<router-link v-if="neighbor.next" :to="`/${host.id}/passages/${neighbor.next.id}`">{{ neighbor.next.title }}</router-link>
+    <p v-else>感谢阅读，敬请期待…</p></div>
+    <div class="nav">上一篇：<router-link v-if="neighbor.last" :to="`/${host.id}/passages/${neighbor.last.id}`">{{ neighbor.last.title }}</router-link>
+    <p v-else>没有上一篇了，感谢阅读</p></div>
     <div class="commentArea">
       <h1>评论</h1>
       <form ref="newComment" :action="`/comments?passageId=${id}`" method="POST" v-if="user">

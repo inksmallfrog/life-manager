@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-09 11:37:43
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 07:47:17
+* @Last Modified time: 2017-06-21 08:24:02
 */
 
 'use strict';
@@ -34,7 +34,7 @@ categoryRouter.get('/', (ctx, next)=>{
         where:{
           type: type
         },
-        attributes: ['id', 'title', 'color', 'createdAt'],
+        attributes: ['id', 'title', 'createdAt'],
         order: [
           ['createdAt', 'ASC']
         ]

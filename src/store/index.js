@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-05-08 07:21:45
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-05-19 08:04:51
+* @Last Modified time: 2017-06-21 16:52:00
 */
 
 'use strict';
@@ -55,6 +55,7 @@ export default new Vuex.Store({
     },
     quit(state){
       state.user = null;
+      state.host = null;
     },
 
     setTodoCategories(state, categories){
@@ -78,6 +79,12 @@ export default new Vuex.Store({
       state.lastFavicon = src;
     },
 
+    addCategory(state, category){
+      if(!category.id) return;
+      if(state.passageCategories.findIndex((c)=>{c.id == category.id}) < 0){
+        state.passageCategories.push(category);
+      }
+    },
     hasNewMessage(state, hasNewMessage){
       state.hasNewMessage = hasNewMessage;
     },
@@ -88,6 +95,14 @@ export default new Vuex.Store({
     getPassages(state, passages){
       state.passages = passages;
       state.passageFetched = true;
+    },
+    changePassage(state, passage){
+      let index = state.passages.findIndex((p)=>{return p.id == passage.id});
+      if(index > -1){
+        state.passages[index] = passage;
+      }else{
+        state.passages.unshift(passage);
+      }
     },
     deletePassage(state, id){
       let index = state.passages.findIndex(passage=>passage.id == id);
@@ -308,7 +323,7 @@ export default new Vuex.Store({
      *            content: 内容
      *          }
      */
-    SAVE_TO_SCRIPT({commit}, passage){
+    SAVE_TO_SCRIPT({commit, dispatch}, passage){
       return fetch('/passages?type=script', {
         credentials: 'include',
         method: 'POST',
@@ -318,19 +333,30 @@ export default new Vuex.Store({
         body: JSON.stringify(passage)
       }).then((res)=>{
         return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.passage){
-          commit('pushToLastPassagePictures', json.pictures);
-          return json.passage.id;
-        }else{
-          return json.info;
+      }).then((passage)=>{
+        if(!passage.hasError){
+          dispatch('PUSH_MESSAGE', {
+            content: '文章已保存为草稿: ' + new Date().Format('hh:mm:ss'),
+            type: 'info'
+          });
+          commit('changePassage', passage);
+          return {
+            id: passage.id,
+            category: passage.Category
+          };
+        }
+        else{
+          dispatch('PUSH_MESSAGE', {
+            content: '保存草稿失败，请稍后重试',
+            type: 'error'
+          });
         }
       }).catch((err)=>{
-        dispatch('NEW_MESSAGE', {
-          content: '网络错误，请检查您的网络连接',
+        dispatch('PUSH_MESSAGE', {
+          content: '保存草稿失败，请检查您的网络链接，手动备份文章',
           type: 'error'
         });
-      })
+      });
     },
     /*
      * 发表文章
@@ -353,19 +379,26 @@ export default new Vuex.Store({
         body: JSON.stringify(passage)
       }).then((res)=>{
         return res.json();
-      }).then((json)=>{
-        if(!json.hasError && json.passage){
-          commit('pushToLastPassagePictures', json.pictures);
-          return json.passage.id;
-        }else{
-          return json.info;
+      }).then((passage)=>{
+        if(!passage.hasError){
+          commit('changePassage', passage);
+          return {
+            id: passage.id,
+            category: passage.Category
+          };
+        }
+        else{
+          dispatch('PUSH_MESSAGE', {
+            content: '文章发布失败，请稍后重试',
+            type: 'error'
+          });
         }
       }).catch((err)=>{
-        dispatch('NEW_MESSAGE', {
-          content: '网络错误，请检查您的网络连接',
+        dispatch('PUSH_MESSAGE', {
+          content: '文章发布失败，请检查您的网络链接，手动备份文章',
           type: 'error'
         });
-      })
+      });
     },
     /*
      * 删除文章
@@ -377,10 +410,13 @@ export default new Vuex.Store({
         fetch(`/passages/${id}`, {
           credentials: 'include',
           method: 'DELETE'
-        }).then((res)=>{
-
+        }).catch((err)=>{
+          dispatch('PUSH_MESSAGE', {
+            content: '文章删除失败，请检查您的网络链接，稍后重试',
+            type: 'error'
+          });
         });
-      }, 6000)
+      })
       commit('deletePassage', id);
       dispatch('PUSH_MESSAGE', {
         content: '您刚刚删除了一篇文章',
@@ -388,7 +424,10 @@ export default new Vuex.Store({
         operation:{
           text: '撤销',
           do(){
-            clearTimeout(deleteAction);
+            fetch(`/passages/${id}?op=undo`, {
+              credentials: 'include',
+              method: 'DELETE'
+            });
             commit('undoLastDelete');
           }
         }

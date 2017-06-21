@@ -7,8 +7,7 @@
 <template>
   <div class="newPassage">
     <form action="/passages" method="POST" :class="{withView: viewMode}"
-        @submit="handleSubmit"
-        @keypress="noSubmit">
+        @submit="handleSubmit">
       <input name="title" v-model="title" type="text" placeholder="标题">
       <div class="operationsGroup">
         <v-select prefix="分类：" label="title" :value="category" :options="categories" :taggable="true" :onChange="onChange"></v-select>
@@ -74,11 +73,6 @@ export default {
       }
       this.category = value;
     },
-    noSubmit(e){
-      if(e.keyCode == 13){
-        e.preventDefault();
-      }
-    },
     closeModal(){
       this.picUpload = false;
       let editor = this.$refs.editor;
@@ -91,7 +85,12 @@ export default {
       let editor = this.$refs.editor;
       let pos = editor.selectionStart || this.editorPos;
       for(let picture of pictures){
-        let imgMarkdown = `\n![uploaded img](${picture.src})`;
+        let imgMarkdown;
+        if(pos == 0){
+          imgMarkdown = `![uploaded img](${picture.src})`;
+        }else{
+          imgMarkdown = `\n![uploaded img](${picture.src})`;
+        }
         this.content = this.content.splice(pos, 0, imgMarkdown);
         pos += imgMarkdown.length;
       }
@@ -172,39 +171,36 @@ export default {
         title: this.title,
         category: this.category,
         content: this.content
-      }).then((res)=>{
-        if(typeof res != 'string'){
-          if(this.id == -1){
-            this.id = res;
+      }).then(({id, category})=>{
+          if(this.id == undefined || this.id == -1){
+            this.id = id;
           }
-          this.$store.dispatch('PUSH_MESSAGE', {
-            content: '文章已保存为草稿: ' + new Date().Format('hh:mm:ss'),
-            type: 'info'
-          });
-        }else{
-          this.$store.dispatch('PUSH_MESSAGE', {
-            content: '保存草稿失败，请检查您的网络链接，手动备份文章',
-            type: 'error'
-          });
-          //handle error
-        }
+          if(this.categories.findIndex((c)=>{
+            c.id == id;
+          }) < 0){
+            this.$store.commit('addCategory', category);
+          }
       })
     },
     publish(e){
       e.preventDefault();
       e.stopPropagation();
-      console.log(this.id);
       this.$store.dispatch('PUBLISH', {
         id: this.id,
         title: this.title,
         category: this.category,
         content: this.content
-      }).then((res)=>{
-        if(typeof res != 'string'){
-          this.$router.replace('/passages');
+      }).then(({id, category})=>{
+        if(id != undefined && id != -1){
+          this.$router.replace('/' + this.$store.state.user.id + '/passages');
         }else{
           //handle error
         }
+        if(this.categories.findIndex((c)=>{
+            c.id == id;
+          }) < 0){
+            this.$store.commit('addCategory', category);
+          }
       })
     },
     handleSubmit(e){
